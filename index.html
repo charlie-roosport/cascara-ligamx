@@ -26,6 +26,11 @@
     font-family:'Inter',system-ui,sans-serif;
     -webkit-font-smoothing:antialiased;
     display:flex;flex-direction:column;min-height:100dvh;
+    position:relative;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-1;
+    background:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDgwIDE5MjAiIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIHNsaWNlIj4KICA8ZGVmcz4KICAgIDwhLS0gZGVncmFkYWRvIGJhc2UgbXV5IHN1dGlsIHBhcmEgZGFyIHByb2Z1bmRpZGFkIGFsIHBhc3RvIC0tPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJjZXNwZWQiIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiAgIHN0b3AtY29sb3I9IiMwRjRBMzciLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIwLjUiIHN0b3AtY29sb3I9IiMwQjNEMkUiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiAgIHN0b3AtY29sb3I9IiMwRjRBMzciLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8IS0tIHZpw7FldGVhZG86IG9zY3VyZWNlIGxhcyBvcmlsbGFzIHBhcmEgcXVlIGVsIGNvbnRlbmlkbyByZXNhbHRlIC0tPgogICAgPHJhZGlhbEdyYWRpZW50IGlkPSJ2aW5ldGEiIGN4PSIwLjUiIGN5PSIwLjUiIHI9IjAuNzUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiICAgIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjAuNjIiIHN0b3AtY29sb3I9IiMwMDAwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiICAgIHN0b3AtY29sb3I9IiMwNjI1MUEiIHN0b3Atb3BhY2l0eT0iMC43MiIvPgogICAgPC9yYWRpYWxHcmFkaWVudD4KICAgIDwhLS0gYnJpbGxvIHRlbnVlIGVuIGVsIGNlbnRybywgY29tbyByZWZsZWN0b3IgZGUgZXN0YWRpbyAtLT4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ibHV6IiBjeD0iMC41IiBjeT0iMC40MiIgcj0iMC42Ij4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiAgIHN0b3AtY29sb3I9IiMxMjU0M0UiIHN0b3Atb3BhY2l0eT0iMC41Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgICBzdG9wLWNvbG9yPSIjMTI1NDNFIiBzdG9wLW9wYWNpdHk9IjAiLz4KICAgIDwvcmFkaWFsR3JhZGllbnQ+CiAgPC9kZWZzPgoKICA8IS0tIDEpIGJhc2UgLS0+CiAgPHJlY3Qgd2lkdGg9IjEwODAiIGhlaWdodD0iMTkyMCIgZmlsbD0idXJsKCNjZXNwZWQpIi8+CgogIDwhLS0gMikgZnJhbmphcyBkZSBjw6lzcGVkIHJlY2nDqW4gY29ydGFkbyAoYXBlbmFzIHBlcmNlcHRpYmxlcykgLS0+CiAgPGcgZmlsbD0iIzBGNEEzNyIgZmlsbC1vcGFjaXR5PSIwLjU1Ij4KICAgIDxyZWN0IHk9IjAiICAgIHdpZHRoPSIxMDgwIiBoZWlnaHQ9IjEyMCIvPgogICAgPHJlY3QgeT0iMjQwIiAgd2lkdGg9IjEwODAiIGhlaWdodD0iMTIwIi8+CiAgICA8cmVjdCB5PSI0ODAiICB3aWR0aD0iMTA4MCIgaGVpZ2h0PSIxMjAiLz4KICAgIDxyZWN0IHk9IjcyMCIgIHdpZHRoPSIxMDgwIiBoZWlnaHQ9IjEyMCIvPgogICAgPHJlY3QgeT0iOTYwIiAgd2lkdGg9IjEwODAiIGhlaWdodD0iMTIwIi8+CiAgICA8cmVjdCB5PSIxMjAwIiB3aWR0aD0iMTA4MCIgaGVpZ2h0PSIxMjAiLz4KICAgIDxyZWN0IHk9IjE0NDAiIHdpZHRoPSIxMDgwIiBoZWlnaHQ9IjEyMCIvPgogICAgPHJlY3QgeT0iMTY4MCIgd2lkdGg9IjEwODAiIGhlaWdodD0iMTIwIi8+CiAgPC9nPgoKICA8IS0tIDMpIGJyaWxsbyBjZW50cmFsIC0tPgogIDxyZWN0IHdpZHRoPSIxMDgwIiBoZWlnaHQ9IjE5MjAiIGZpbGw9InVybCgjbHV6KSIvPgoKICA8IS0tIDQpIEzDjU5FQVMgREUgQ0FMIChibGFuY28gYSBiYWphIG9wYWNpZGFkKSAtLT4KICA8ZyBmaWxsPSJub25lIiBzdHJva2U9IiNGRkZGRkYiIHN0cm9rZS1vcGFjaXR5PSIwLjEyIiBzdHJva2Utd2lkdGg9IjQiPgogICAgPCEtLSBwZXLDrW1ldHJvIC0tPgogICAgPHJlY3QgeD0iNDAiIHk9IjQwIiB3aWR0aD0iMTAwMCIgaGVpZ2h0PSIxODQwIi8+CgogICAgPCEtLSBsw61uZWEgZGUgbWVkaW8gY2FtcG8gLS0+CiAgICA8bGluZSB4MT0iNDAiIHkxPSI5NjAiIHgyPSIxMDQwIiB5Mj0iOTYwIi8+CiAgICA8IS0tIGPDrXJjdWxvIGNlbnRyYWwgLS0+CiAgICA8Y2lyY2xlIGN4PSI1NDAiIGN5PSI5NjAiIHI9IjE1MCIvPgoKICAgIDwhLS0gPT09PT0gw4FSRUEgU1VQRVJJT1IgPT09PT0gLS0+CiAgICA8IS0tIMOhcmVhIGdyYW5kZSAtLT4KICAgIDxyZWN0IHg9IjI5MCIgeT0iNDAiIHdpZHRoPSI1MDAiIGhlaWdodD0iMjAwIi8+CiAgICA8IS0tIMOhcmVhIGNoaWNhIC0tPgogICAgPHJlY3QgeD0iNDEwIiB5PSI0MCIgd2lkdGg9IjI2MCIgaGVpZ2h0PSI4MCIvPgogICAgPCEtLSBhcmNvIGRlIHBlbmFsIChzZW1pY8OtcmN1bG8gaGFjaWEgYWZ1ZXJhIGRlbCDDoXJlYSkgLS0+CiAgICA8cGF0aCBkPSJNIDQzMCAyNDAgQSAxMjAgMTIwIDAgMCAwIDY1MCAyNDAiLz4KCiAgICA8IS0tID09PT09IMOBUkVBIElORkVSSU9SID09PT09IC0tPgogICAgPHJlY3QgeD0iMjkwIiB5PSIxNjgwIiB3aWR0aD0iNTAwIiBoZWlnaHQ9IjIwMCIvPgogICAgPHJlY3QgeD0iNDEwIiB5PSIxODAwIiB3aWR0aD0iMjYwIiBoZWlnaHQ9IjgwIi8+CiAgICA8cGF0aCBkPSJNIDQzMCAxNjgwIEEgMTIwIDEyMCAwIDAgMSA2NTAgMTY4MCIvPgoKICAgIDwhLS0gPT09PT0gQkFOREVSSU5FUyBERSBFU1FVSU5BID09PT09IC0tPgogICAgPHBhdGggZD0iTSA0MCA3NCBBIDM0IDM0IDAgMCAwIDc0IDQwIi8+CiAgICA8cGF0aCBkPSJNIDEwMDYgNDAgQSAzNCAzNCAwIDAgMCAxMDQwIDc0Ii8+CiAgICA8cGF0aCBkPSJNIDQwIDE4NDYgQSAzNCAzNCAwIDAgMSA3NCAxODgwIi8+CiAgICA8cGF0aCBkPSJNIDEwMDYgMTg4MCBBIDM0IDM0IDAgMCAxIDEwNDAgMTg0NiIvPgogIDwvZz4KCiAgPCEtLSBwdW50b3MgKGNlbnRybyB5IHBlbmFsZXMpLCB1biBwb2NvIG3DoXMgdmlzaWJsZXMgLS0+CiAgPGcgZmlsbD0iI0ZGRkZGRiIgZmlsbC1vcGFjaXR5PSIwLjE0Ij4KICAgIDxjaXJjbGUgY3g9IjU0MCIgY3k9Ijk2MCIgIHI9IjUiLz4KICAgIDxjaXJjbGUgY3g9IjU0MCIgY3k9IjE5MCIgIHI9IjUiLz4KICAgIDxjaXJjbGUgY3g9IjU0MCIgY3k9IjE3MzAiIHI9IjUiLz4KICA8L2c+CgogIDwhLS0gNSkgdmnDsWV0ZWFkbyBlbmNpbWEgZGUgdG9kbyAtLT4KICA8cmVjdCB3aWR0aD0iMTA4MCIgaGVpZ2h0PSIxOTIwIiBmaWxsPSJ1cmwoI3ZpbmV0YSkiLz4KPC9zdmc+Cg==") center/cover no-repeat;
   }
   .cond{font-family:'Barlow Condensed',sans-serif}
 
@@ -49,7 +54,7 @@
   .campo label{display:block;font-size:13px;color:var(--pizarra);margin-bottom:6px}
   .campo input{
     width:100%;padding:14px;border-radius:var(--radio);
-    background:var(--cancha-2);border:1px solid var(--linea);
+    background:rgba(15,78,58,.6);border:1px solid var(--linea);
     color:var(--hueso);font-size:16px;font-family:inherit;
   }
   .campo input:focus{outline:2px solid var(--lima);outline-offset:1px;border-color:transparent}
@@ -78,6 +83,7 @@
   .top{
     display:flex;align-items:center;justify-content:space-between;
     padding:16px 20px;border-bottom:1px solid var(--linea);
+    background:rgba(6,37,26,.55);backdrop-filter:blur(6px);
   }
   .top .wm{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px}
   .top .wm span{color:var(--lima)}
@@ -94,7 +100,7 @@
   /* ---------- NAV INFERIOR ---------- */
   .tabs{
     display:flex;border-top:1px solid var(--linea);
-    background:var(--cancha);position:sticky;bottom:0;
+    background:rgba(6,37,26,.72);backdrop-filter:blur(8px);position:sticky;bottom:0;
     padding-bottom:env(safe-area-inset-bottom);
   }
   .tab{
@@ -114,7 +120,7 @@
   .sv-cabecera .jornada{color:var(--pizarra);font-size:14px;margin-top:4px}
   .sv-reloj{
     display:inline-flex;align-items:center;gap:7px;margin-top:12px;
-    background:var(--cancha-2);border:1px solid var(--linea);
+    background:rgba(15,78,58,.7);border:1px solid var(--linea);
     padding:8px 12px;border-radius:999px;font-size:13px;
   }
   .sv-reloj .punto{width:8px;height:8px;border-radius:50%;background:var(--lima)}
@@ -125,7 +131,7 @@
   .sv-tickets{display:flex;gap:10px;overflow-x:auto;padding:4px 0 10px;margin:0 -20px;padding-left:20px;padding-right:20px}
   .sv-ticket{
     flex:0 0 auto;min-width:150px;padding:14px;border-radius:var(--radio);
-    background:var(--cancha-2);border:1.5px solid var(--linea);cursor:pointer;
+    background:rgba(15,78,58,.72);border:1.5px solid var(--linea);cursor:pointer;backdrop-filter:blur(2px);
     transition:border-color .15s;
   }
   .sv-ticket.sel{border-color:var(--lima)}
@@ -145,14 +151,14 @@
   /* partidos para pickear */
   .sv-instru{font-size:14px;color:var(--pizarra);margin:16px 0 10px}
   .sv-partido{
-    background:var(--cancha-2);border:1px solid var(--linea);border-radius:var(--radio);
-    padding:12px;margin-bottom:10px;
+    background:rgba(15,78,58,.72);border:1px solid var(--linea);border-radius:var(--radio);
+    padding:12px;margin-bottom:10px;backdrop-filter:blur(2px);
   }
   .sv-partido .hora{font-size:12px;color:var(--pizarra);margin-bottom:10px;text-align:center}
   .sv-lados{display:flex;gap:8px}
   .sv-lado{
     flex:1;padding:12px 8px;border-radius:10px;cursor:pointer;text-align:center;
-    background:var(--cancha);border:1.5px solid var(--linea);transition:all .12s;
+    background:rgba(11,61,46,.55);border:1.5px solid var(--linea);transition:all .12s;
   }
   .sv-lado .nom{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:17px}
   .sv-lado .cl{font-size:11px;color:var(--pizarra);margin-top:2px}
@@ -188,8 +194,8 @@
 
   /* navegador de jornadas */
   .sv-navj{display:flex;align-items:center;justify-content:space-between;
-    background:var(--cancha-2);border:1px solid var(--linea);border-radius:999px;
-    padding:6px 8px;margin:14px 0 4px}
+    background:rgba(15,78,58,.7);border:1px solid var(--linea);border-radius:999px;
+    padding:6px 8px;margin:14px 0 4px;backdrop-filter:blur(2px)}
   .sv-navj button{background:none;border:none;color:var(--lima);cursor:pointer;
     font-size:22px;line-height:1;padding:2px 12px;font-family:'Barlow Condensed',sans-serif}
   .sv-navj button:disabled{color:var(--pizarra);opacity:.4;cursor:default}

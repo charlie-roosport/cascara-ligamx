@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Cáscara Sports · Liga MX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cancha:#0B3D2E;      /* verde cancha profundo (fondo) */
+    --cancha-2:#0F4E3A;    /* verde un paso más claro (tarjetas) */
+    --hueso:#F2F4EF;       /* texto claro */
+    --lima:#B6FF3C;        /* acento eléctrico: acciones, aciertos */
+    --coral:#FF5A47;       /* fallos, alertas */
+    --pizarra:#8A9490;     /* neutro */
+    --linea:rgba(242,244,239,.12);
+    --radio:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--cancha);
+    color:var(--hueso);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    display:flex;flex-direction:column;min-height:100dvh;
+  }
+  .cond{font-family:'Barlow Condensed',sans-serif}
+
+  /* ---------- PANTALLA DE LOGIN ---------- */
+  #auth{
+    flex:1;display:flex;flex-direction:column;justify-content:center;
+    padding:32px 24px;max-width:440px;width:100%;margin:0 auto;
+  }
+  .marca{margin-bottom:40px}
+  .marca .kicker{
+    font-family:'Barlow Condensed',sans-serif;font-weight:600;
+    letter-spacing:.04em;color:var(--lima);font-size:15px;
+  }
+  .marca h1{
+    font-family:'Barlow Condensed',sans-serif;font-weight:700;
+    font-size:44px;line-height:.98;margin-top:2px;
+  }
+  .marca p{color:var(--pizarra);margin-top:10px;font-size:14px;line-height:1.5}
+
+  .campo{margin-bottom:14px}
+  .campo label{display:block;font-size:13px;color:var(--pizarra);margin-bottom:6px}
+  .campo input{
+    width:100%;padding:14px;border-radius:var(--radio);
+    background:var(--cancha-2);border:1px solid var(--linea);
+    color:var(--hueso);font-size:16px;font-family:inherit;
+  }
+  .campo input:focus{outline:2px solid var(--lima);outline-offset:1px;border-color:transparent}
+
+  .btn{
+    width:100%;padding:15px;border-radius:var(--radio);border:none;
+    font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:19px;
+    letter-spacing:.02em;cursor:pointer;margin-top:8px;
+  }
+  .btn-primario{background:var(--lima);color:#06251A}
+  .btn-primario:active{transform:translateY(1px)}
+  .btn-fantasma{background:transparent;color:var(--hueso);border:1px solid var(--linea)}
+
+  .cambia{margin-top:20px;text-align:center;font-size:14px;color:var(--pizarra)}
+  .cambia button{background:none;border:none;color:var(--lima);font-weight:600;cursor:pointer;font-size:14px;font-family:inherit}
+
+  .aviso{
+    margin-top:16px;padding:12px 14px;border-radius:var(--radio);
+    font-size:14px;line-height:1.4;display:none;
+  }
+  .aviso.error{background:rgba(255,90,71,.14);color:#FFB4A9;display:block}
+  .aviso.ok{background:rgba(182,255,60,.14);color:var(--lima);display:block}
+
+  /* ---------- APP (post-login) ---------- */
+  #app{flex:1;display:none;flex-direction:column;min-height:100dvh}
+  .top{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 20px;border-bottom:1px solid var(--linea);
+  }
+  .top .wm{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px}
+  .top .wm span{color:var(--lima)}
+  .top .quien{font-size:13px;color:var(--pizarra);text-align:right}
+  .top .quien button{display:block;background:none;border:none;color:var(--coral);font-size:12px;cursor:pointer;margin-top:2px;font-family:inherit}
+
+  .contenido{flex:1;padding:20px;overflow-y:auto}
+  .placeholder{
+    border:1px dashed var(--linea);border-radius:var(--radio);
+    padding:40px 20px;text-align:center;color:var(--pizarra);
+  }
+  .placeholder .cond{font-size:26px;color:var(--hueso);margin-bottom:6px}
+
+  /* ---------- NAV INFERIOR ---------- */
+  .tabs{
+    display:flex;border-top:1px solid var(--linea);
+    background:var(--cancha);position:sticky;bottom:0;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .tab{
+    flex:1;padding:12px 4px 14px;background:none;border:none;cursor:pointer;
+    color:var(--pizarra);font-family:'Barlow Condensed',sans-serif;
+    font-weight:600;font-size:13px;letter-spacing:.02em;
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+  }
+  .tab .ic{width:22px;height:22px;display:block}
+  .tab.activa{color:var(--lima)}
+
+  .oculto{display:none!important}
+
+  /* ---------- SURVIVOR ---------- */
+  .sv-cabecera{margin-bottom:18px}
+  .sv-cabecera h2{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:30px;line-height:1}
+  .sv-cabecera .jornada{color:var(--pizarra);font-size:14px;margin-top:4px}
+  .sv-reloj{
+    display:inline-flex;align-items:center;gap:7px;margin-top:12px;
+    background:var(--cancha-2);border:1px solid var(--linea);
+    padding:8px 12px;border-radius:999px;font-size:13px;
+  }
+  .sv-reloj .punto{width:8px;height:8px;border-radius:50%;background:var(--lima)}
+  .sv-reloj.cerrado .punto{background:var(--coral)}
+  .sv-reloj b{font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.02em}
+
+  /* carrusel de tickets */
+  .sv-tickets{display:flex;gap:10px;overflow-x:auto;padding:4px 0 10px;margin:0 -20px;padding-left:20px;padding-right:20px}
+  .sv-ticket{
+    flex:0 0 auto;min-width:150px;padding:14px;border-radius:var(--radio);
+    background:var(--cancha-2);border:1.5px solid var(--linea);cursor:pointer;
+    transition:border-color .15s;
+  }
+  .sv-ticket.sel{border-color:var(--lima)}
+  .sv-ticket.muerto{opacity:.5}
+  .sv-ticket .apodo{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:18px;margin-bottom:8px}
+  .sv-vidas{display:flex;gap:3px}
+  .sv-vidas .vida{width:15px;height:15px}
+  .sv-ticket .estado-muerto{color:var(--coral);font-size:12px;font-weight:600;margin-top:6px}
+  .sv-nuevo{
+    flex:0 0 auto;min-width:120px;border-radius:var(--radio);cursor:pointer;
+    background:transparent;border:1.5px dashed var(--linea);color:var(--pizarra);
+    font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;
+    display:flex;align-items:center;justify-content:center;gap:6px;
+  }
+  .sv-nuevo:hover{border-color:var(--lima);color:var(--lima)}
+
+  /* partidos para pickear */
+  .sv-instru{font-size:14px;color:var(--pizarra);margin:16px 0 10px}
+  .sv-partido{
+    background:var(--cancha-2);border:1px solid var(--linea);border-radius:var(--radio);
+    padding:12px;margin-bottom:10px;
+  }
+  .sv-partido .hora{font-size:12px;color:var(--pizarra);margin-bottom:10px;text-align:center}
+  .sv-lados{display:flex;gap:8px}
+  .sv-lado{
+    flex:1;padding:12px 8px;border-radius:10px;cursor:pointer;text-align:center;
+    background:var(--cancha);border:1.5px solid var(--linea);transition:all .12s;
+  }
+  .sv-lado .nom{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:17px}
+  .sv-lado .cl{font-size:11px;color:var(--pizarra);margin-top:2px}
+  .sv-lado.elegido{background:var(--lima);border-color:var(--lima);color:#06251A}
+  .sv-lado.elegido .cl{color:#06251A}
+  .sv-lado.usado{opacity:.4;cursor:not-allowed}
+  .sv-lado.usado::after{content:' ✓ usado';font-size:10px}
+  .sv-vs{display:flex;align-items:center;color:var(--pizarra);font-size:12px;padding:0 2px}
+
+  .sv-msg{padding:14px;border-radius:var(--radio);font-size:14px;line-height:1.4;margin-bottom:10px}
+  .sv-msg.err{background:rgba(255,90,71,.14);color:#FFB4A9}
+  .sv-msg.ok{background:rgba(182,255,60,.14);color:var(--lima)}
+  .sv-vacio{border:1px dashed var(--linea);border-radius:var(--radio);padding:32px 20px;text-align:center;color:var(--pizarra)}
+
+  .sv-guardar{
+    position:sticky;bottom:12px;margin-top:8px;width:100%;padding:15px;border:none;
+    border-radius:var(--radio);background:var(--lima);color:#06251A;cursor:pointer;
+    font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:19px;letter-spacing:.02em;
+    box-shadow:0 6px 20px rgba(0,0,0,.35);
+  }
+  .sv-guardar:disabled{opacity:.4;cursor:default;box-shadow:none}
+
+  /* logo de equipo con fallback a monograma */
+  .sv-escudo{width:34px;height:34px;margin:0 auto 6px;display:block;object-fit:contain}
+  .sv-mono{
+    width:34px;height:34px;margin:0 auto 6px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;
+    color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4);
+    box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.15);
+  }
+  .sv-lado.elegido .sv-mono{background:rgba(6,37,26,.2);color:#06251A}
+
+  /* navegador de jornadas */
+  .sv-navj{display:flex;align-items:center;justify-content:space-between;
+    background:var(--cancha-2);border:1px solid var(--linea);border-radius:999px;
+    padding:6px 8px;margin:14px 0 4px}
+  .sv-navj button{background:none;border:none;color:var(--lima);cursor:pointer;
+    font-size:22px;line-height:1;padding:2px 12px;font-family:'Barlow Condensed',sans-serif}
+  .sv-navj button:disabled{color:var(--pizarra);opacity:.4;cursor:default}
+  .sv-navj .jinfo{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px;text-align:center}
+  .sv-navj .jinfo small{display:block;font-family:'Inter',sans-serif;font-weight:400;font-size:11px;color:var(--pizarra)}
+</style>
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<section id="auth">
+  <div class="marca">
+    <div class="kicker cond">CÁSCARA SPORTS</div>
+    <h1>Liga MX<br>Quiniela</h1>
+    <p id="sub-auth">Entra con tu correo para hacer tus picks, ver tus vidas y seguir los rankings de la temporada.</p>
+  </div>
+
+  <div class="campo">
+    <label for="correo">Correo</label>
+    <input id="correo" type="email" autocomplete="email" placeholder="tucorreo@ejemplo.com" />
+  </div>
+  <div class="campo">
+    <label for="clave">Contraseña</label>
+    <input id="clave" type="password" autocomplete="current-password" placeholder="••••••••" />
+  </div>
+  <!-- campo nombre: solo aparece en modo registro -->
+  <div class="campo oculto" id="campo-nombre">
+    <label for="nombre">¿Cómo te ven los demás?</label>
+    <input id="nombre" type="text" autocomplete="nickname" placeholder="Tu nombre o apodo" />
+  </div>
+
+  <button class="btn btn-primario" id="btn-accion">Entrar</button>
+  <div class="aviso" id="aviso-auth"></div>
+
+  <div class="cambia">
+    <span id="txt-cambia">¿No tienes cuenta?</span>
+    <button id="btn-cambia">Regístrate</button>
+  </div>
+</section>
+
+<!-- ===================== APP ===================== -->
+<section id="app">
+  <header class="top">
+    <div class="wm">Cáscara <span>MX</span></div>
+    <div class="quien">
+      <span id="mi-nombre">—</span>
+      <button id="btn-salir">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <main class="contenido" id="contenido">
+    <!-- Cada pestaña llena esto. Por ahora, placeholders. -->
+  </main>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab activa" data-tab="survivor">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z"/></svg>
+      Survivor
+    </button>
+    <button class="tab" data-tab="quiniela">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      Jornada
+    </button>
+    <button class="tab" data-tab="liguilla">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v6a6 6 0 0 0 12 0V3M9 21h6M12 15v6"/></svg>
+      Liguilla
+    </button>
+    <button class="tab" data-tab="cuenta">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+      Cuenta
+    </button>
+  </nav>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ===================== CONFIG SUPABASE =====================
+const SUPABASE_URL = "https://jusjfukucehsrtechmyw.supabase.co";
+const SUPABASE_ANON = "sb_publishable_rmNfG7vbUpM385fE5-GaTw_fD29aww1";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ===================== ESTADO =====================
+let modoRegistro = false;
+let perfil = null; // fila de la tabla usuario
+
+// ===================== HELPERS UI =====================
+const $ = (id) => document.getElementById(id);
+function aviso(msg, tipo){
+  const a = $("aviso-auth");
+  a.textContent = msg;
+  a.className = "aviso " + tipo;
+}
+function limpiaAviso(){ $("aviso-auth").className = "aviso"; }
+
+// ===================== CAMBIO LOGIN/REGISTRO =====================
+$("btn-cambia").addEventListener("click", () => {
+  modoRegistro = !modoRegistro;
+  limpiaAviso();
+  $("campo-nombre").classList.toggle("oculto", !modoRegistro);
+  $("btn-accion").textContent = modoRegistro ? "Crear cuenta" : "Entrar";
+  $("txt-cambia").textContent = modoRegistro ? "¿Ya tienes cuenta?" : "¿No tienes cuenta?";
+  $("btn-cambia").textContent = modoRegistro ? "Inicia sesión" : "Regístrate";
+  $("clave").setAttribute("autocomplete", modoRegistro ? "new-password" : "current-password");
+});
+
+// ===================== ACCIÓN (entrar / registrar) =====================
+$("btn-accion").addEventListener("click", async () => {
+  const correo = $("correo").value.trim();
+  const clave = $("clave").value;
+  limpiaAviso();
+
+  if(!correo || !clave){ aviso("Escribe tu correo y contraseña.", "error"); return; }
+
+  $("btn-accion").disabled = true;
+  $("btn-accion").textContent = modoRegistro ? "Creando…" : "Entrando…";
+
+  try {
+    if(modoRegistro){
+      const nombre = $("nombre").value.trim();
+      if(!nombre){ aviso("Ponle un nombre para que te vean los demás.", "error"); resetBtn(); return; }
+      // 1. crear usuario en auth
+      const { data, error } = await sb.auth.signUp({ email: correo, password: clave });
+      if(error){ aviso(traduce(error.message), "error"); resetBtn(); return; }
+      // 2. crear perfil en tabla usuario (si hay sesión inmediata)
+      if(data.user){
+        const { error: e2 } = await sb.from("usuario").insert({
+          id: data.user.id, nombre: nombre, correo: correo
+        });
+        // si el proyecto exige confirmación por correo, puede no haber sesión aún
+        if(e2 && !e2.message.includes("row-level security")){
+          console.warn("perfil:", e2.message);
+        }
+      }
+      if(!data.session){
+        aviso("Cuenta creada. Revisa tu correo para confirmar y luego inicia sesión.", "ok");
+        resetBtn(); return;
+      }
+      await entrar();
+    } else {
+      const { error } = await sb.auth.signInWithPassword({ email: correo, password: clave });
+      if(error){ aviso(traduce(error.message), "error"); resetBtn(); return; }
+      await entrar();
+    }
+  } catch(err){
+    aviso("Algo falló. Inténtalo de nuevo.", "error");
+    console.error(err); resetBtn();
+  }
+});
+
+function resetBtn(){
+  $("btn-accion").disabled = false;
+  $("btn-accion").textContent = modoRegistro ? "Crear cuenta" : "Entrar";
+}
+
+// ===================== ENTRAR A LA APP =====================
+async function entrar(){
+  // asegurar perfil
+  const { data: sesion } = await sb.auth.getUser();
+  if(!sesion.user){ aviso("No se pudo iniciar sesión.", "error"); resetBtn(); return; }
+
+  let { data: fila } = await sb.from("usuario").select("*").eq("id", sesion.user.id).maybeSingle();
+  // si no hay perfil (p.ej. confirmó correo después), lo creamos con lo que haya
+  if(!fila){
+    const nombre = $("nombre").value.trim() || (sesion.user.email || "Jugador").split("@")[0];
+    await sb.from("usuario").insert({ id: sesion.user.id, nombre, correo: sesion.user.email });
+    const r = await sb.from("usuario").select("*").eq("id", sesion.user.id).maybeSingle();
+    fila = r.data;
+  }
+  perfil = fila;
+  $("mi-nombre").textContent = perfil ? perfil.nombre : "Jugador";
+  $("auth").style.display = "none";
+  $("app").style.display = "flex";
+  cambiaTab("survivor");
+}
+
+// ===================== SALIR =====================
+$("btn-salir").addEventListener("click", async () => {
+  await sb.auth.signOut();
+  perfil = null;
+  $("app").style.display = "none";
+  $("auth").style.display = "flex";
+  $("correo").value = ""; $("clave").value = "";
+  resetBtn();
+});
+
+// ===================== PESTAÑAS =====================
+document.querySelectorAll(".tab").forEach(t => {
+  t.addEventListener("click", () => cambiaTab(t.dataset.tab));
+});
+function cambiaTab(nombre){
+  document.querySelectorAll(".tab").forEach(t =>
+    t.classList.toggle("activa", t.dataset.tab === nombre));
+  const c = $("contenido");
+  if(nombre === "survivor"){ pantallaSurvivor(c); return; }
+  // Las demás siguen como placeholder hasta su capa
+  const titulos = {
+    quiniela: ["Jornada + Acumulada", "Aquí harás tus picks L/E/V de la jornada y verás la tabla."],
+    liguilla: ["Liguilla", "Aquí llenarás tu bracket y tus pronósticos ronda por ronda."],
+    cuenta:   ["Tu cuenta", "Aquí verás tus inscripciones, pagos y datos."]
+  };
+  const [t, d] = titulos[nombre];
+  c.innerHTML = `<div class="placeholder"><div class="cond">${t}</div><p>${d}</p><p style="margin-top:10px;font-size:13px;">Próximamente en la siguiente capa.</p></div>`;
+}
+
+// =====================================================================
+//  PANTALLA SURVIVOR
+// =====================================================================
+const SV = { torneo:null, jornada:1, deadline:null, tickets:[], ticketSel:null,
+             partidos:[], equiposUsados:{}, pickActual:null, eleccion:null,
+             jornadaManual:null, jornadasDisponibles:[], deadlinesPorJornada:{} };
+
+const svgVida = (llena) => llena
+  ? `<svg class="vida" viewBox="0 0 24 24" fill="var(--lima)" stroke="var(--lima)" stroke-width="2"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z"/></svg>`
+  : `<svg class="vida" viewBox="0 0 24 24" fill="none" stroke="var(--pizarra)" stroke-width="2"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z"/></svg>`;
+
+async function pantallaSurvivor(c){
+  c.innerHTML = `<p style="color:var(--pizarra)">Cargando…</p>`;
+
+  // 1. torneo activo
+  if(!SV.torneo){
+    const { data: tor } = await sb.from("torneo").select("*").eq("activo", true).maybeSingle();
+    if(!tor){ c.innerHTML = `<div class="sv-vacio">Todavía no hay un torneo activo. El admin lo abre pronto.</div>`; return; }
+    SV.torneo = tor;
+  }
+
+  // 2. jornada actual = la del deadline de survivor más próximo que no ha cerrado;
+  //    si todos cerraron, la última.
+  const { data: deadlines } = await sb.from("jornada_deadline")
+    .select("*").eq("torneo_id", SV.torneo.id).order("jornada");
+  if(!deadlines || deadlines.length === 0){
+    c.innerHTML = `<div class="sv-vacio">Aún no hay jornadas de Survivor configuradas.</div>`; return;
+  }
+  const ahora = new Date();
+  SV.jornadasDisponibles = deadlines.map(d => d.jornada);
+  SV.deadlinesPorJornada = {};
+  deadlines.forEach(d => SV.deadlinesPorJornada[d.jornada] = new Date(d.cierre_survivor));
+  // si el usuario no ha elegido jornada manualmente, ir a la abierta (o la última)
+  if(SV.jornadaManual == null){
+    const abierta = deadlines.find(d => new Date(d.cierre_survivor) > ahora);
+    const dl = abierta || deadlines[deadlines.length-1];
+    SV.jornada = dl.jornada;
+  } else {
+    SV.jornada = SV.jornadaManual;
+  }
+  SV.deadline = SV.deadlinesPorJornada[SV.jornada];
+
+  // 3. mis tickets del torneo
+  const { data: tickets } = await sb.from("survivor_ticket")
+    .select("*").eq("torneo_id", SV.torneo.id).order("creado_en");
+  SV.tickets = tickets || [];
+  if(!SV.ticketSel && SV.tickets.length) SV.ticketSel = SV.tickets.find(t=>!t.eliminado)?.id || SV.tickets[0].id;
+
+  // 4. partidos de la jornada
+  const { data: parts } = await sb.from("partido")
+    .select("id, jornada, kickoff, equipo_local_id, equipo_visitante_id, "+
+            "loc:equipo_local_id(nombre,nombre_corto,escudo_url,color), vis:equipo_visitante_id(nombre,nombre_corto,escudo_url,color)")
+    .eq("torneo_id", SV.torneo.id).eq("jornada", SV.jornada).order("kickoff");
+  SV.partidos = parts || [];
+
+  // 5. equipos ya usados por el ticket seleccionado + pick actual de esta jornada
+  SV.equiposUsados = {};
+  SV.pickActual = null;
+  SV.eleccion = null;
+  if(SV.ticketSel){
+    const { data: usados } = await sb.from("survivor_pick")
+      .select("equipo_id, jornada, partido_id").eq("ticket_id", SV.ticketSel);
+    (usados||[]).forEach(u => {
+      SV.equiposUsados[u.equipo_id] = u.jornada;
+      if(u.jornada === SV.jornada){ SV.pickActual = u; SV.eleccion = u.equipo_id; }
+    });
+  }
+
+  render(c);
+}
+
+function render(c){
+  const cerrada = SV.deadline <= new Date();
+  const t = SV.tickets.find(x=>x.id===SV.ticketSel);
+
+  let html = `
+  <div class="sv-cabecera">
+    <h2>Survivor</h2>
+    <div class="jornada">${SV.torneo.nombre} · Jornada ${SV.jornada}</div>
+    <div class="sv-reloj ${cerrada?'cerrado':''}">
+      <span class="punto"></span><b id="sv-cuenta">${cerrada?'Jornada cerrada':textoReloj(SV.deadline)}</b>
+    </div>
+  </div>`;
+
+  // navegador de jornadas
+  const js = SV.jornadasDisponibles;
+  const idx = js.indexOf(SV.jornada);
+  const hayPrev = idx > 0, haySig = idx < js.length-1 && idx !== -1;
+  const estadoJ = cerrada ? 'cerrada' : 'abierta';
+  html += `
+  <div class="sv-navj">
+    <button id="j-prev" ${hayPrev?'':'disabled'}>‹</button>
+    <div class="jinfo">Jornada ${SV.jornada}<small>${estadoJ}</small></div>
+    <button id="j-sig" ${haySig?'':'disabled'}>›</button>
+  </div>`;
+
+  // carrusel de boletos
+  html += `<div class="sv-tickets">`;
+  SV.tickets.forEach(tk => {
+    const vidas = Array.from({length: tk.vidas_iniciales}, (_,i)=> svgVida(i < tk.vidas)).join("");
+    html += `
+      <div class="sv-ticket ${tk.id===SV.ticketSel?'sel':''} ${tk.eliminado?'muerto':''}" data-ticket="${tk.id}">
+        <div class="apodo">${escapa(tk.apodo)}</div>
+        <div class="sv-vidas">${vidas}</div>
+        ${tk.eliminado?'<div class="estado-muerto">Eliminado</div>':''}
+      </div>`;
+  });
+  html += `<div class="sv-nuevo" id="sv-nuevo">+ Nuevo boleto</div>`;
+  html += `</div>`;
+
+  html += `<div id="sv-zona"></div>`;
+  c.innerHTML = html;
+
+  // eventos de tickets
+  c.querySelectorAll(".sv-ticket").forEach(el=>{
+    el.addEventListener("click", async ()=>{
+      SV.ticketSel = el.dataset.ticket;
+      await pantallaSurvivor($("contenido"));
+    });
+  });
+  $("sv-nuevo").addEventListener("click", crearTicket);
+
+  // navegación de jornadas
+  const jp = $("j-prev"), js2 = $("j-sig");
+  if(jp) jp.addEventListener("click", async ()=>{
+    const i = SV.jornadasDisponibles.indexOf(SV.jornada);
+    if(i>0){ SV.jornadaManual = SV.jornadasDisponibles[i-1]; await pantallaSurvivor($("contenido")); }
+  });
+  if(js2) js2.addEventListener("click", async ()=>{
+    const i = SV.jornadasDisponibles.indexOf(SV.jornada);
+    if(i < SV.jornadasDisponibles.length-1){ SV.jornadaManual = SV.jornadasDisponibles[i+1]; await pantallaSurvivor($("contenido")); }
+  });
+
+  renderZona(cerrada, t);
+  arrancaReloj();
+}
+
+function renderZona(cerrada, t){
+  const z = $("sv-zona");
+  if(!z) return;
+  if(SV.tickets.length === 0){
+    z.innerHTML = `<div class="sv-vacio">Aún no tienes boletos. Crea uno con "+ Nuevo boleto" para entrarle al Survivor.</div>`;
+    return;
+  }
+  if(t && t.eliminado){
+    z.innerHTML = `<div class="sv-msg err">Este boleto ya quedó eliminado. Sus picks son solo de consulta.</div>`;
+    return;
+  }
+  if(SV.partidos.length === 0){
+    z.innerHTML = `<div class="sv-vacio">Todavía no hay partidos cargados para esta jornada.</div>`;
+    return;
+  }
+
+  let html = `<div class="sv-instru">Elige al equipo que crees que <b>gana</b>. No puedes repetir un equipo que ya usaste en este boleto. El empate te cuesta una vida.</div>`;
+
+  SV.partidos.forEach(p=>{
+    const usadoLoc = SV.equiposUsados[p.equipo_local_id] && SV.equiposUsados[p.equipo_local_id] !== SV.jornada;
+    const usadoVis = SV.equiposUsados[p.equipo_visitante_id] && SV.equiposUsados[p.equipo_visitante_id] !== SV.jornada;
+    const elLoc = SV.eleccion === p.equipo_local_id;
+    const elVis = SV.eleccion === p.equipo_visitante_id;
+    html += `
+    <div class="sv-partido">
+      <div class="hora">${fechaHora(p.kickoff)}</div>
+      <div class="sv-lados">
+        <div class="sv-lado ${elLoc?'elegido':''} ${usadoLoc?'usado':''}"
+             data-eq="${p.equipo_local_id}" data-part="${p.id}">
+          ${escudoHTML(p.loc)}<div class="nom">${escapa(p.loc.nombre)}</div><div class="cl">local</div>
+        </div>
+        <div class="sv-vs">vs</div>
+        <div class="sv-lado ${elVis?'elegido':''} ${usadoVis?'usado':''}"
+             data-eq="${p.equipo_visitante_id}" data-part="${p.id}">
+          ${escudoHTML(p.vis)}<div class="nom">${escapa(p.vis.nombre)}</div><div class="cl">visitante</div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  html += `<button class="sv-guardar" id="sv-guardar" ${(!SV.eleccion||cerrada)?'disabled':''}>
+    ${cerrada?'Jornada cerrada':(SV.pickActual?'Actualizar mi pick':'Guardar mi pick')}
+  </button>`;
+  z.innerHTML = html;
+
+  if(!cerrada){
+    z.querySelectorAll(".sv-lado").forEach(el=>{
+      if(el.classList.contains("usado")) return;
+      el.addEventListener("click", ()=>{
+        SV.eleccion = el.dataset.eq;
+        SV.partidoElegido = el.dataset.part;
+        renderZona(cerrada, t);
+      });
+    });
+    const g = $("sv-guardar");
+    if(g) g.addEventListener("click", guardarPick);
+  }
+}
+
+async function crearTicket(){
+  const apodo = prompt("Ponle un apodo a tu boleto (para distinguir tus varios):", "");
+  if(!apodo || !apodo.trim()) return;
+  const { error } = await sb.from("survivor_ticket").insert({
+    torneo_id: SV.torneo.id, usuario_id: perfil.id, apodo: apodo.trim()
+  });
+  if(error){ alert("No se pudo crear el boleto: " + error.message); return; }
+  SV.ticketSel = null; // que elija el nuevo
+  await pantallaSurvivor($("contenido"));
+}
+
+async function guardarPick(){
+  if(!SV.eleccion || !SV.partidoElegido){ return; }
+  const g = $("sv-guardar"); g.disabled = true; g.textContent = "Guardando…";
+  const payload = {
+    ticket_id: SV.ticketSel, jornada: SV.jornada,
+    partido_id: SV.partidoElegido, equipo_id: SV.eleccion
+  };
+  let error;
+  if(SV.pickActual){
+    ({ error } = await sb.from("survivor_pick").update(payload).eq("ticket_id", SV.ticketSel).eq("jornada", SV.jornada));
+  } else {
+    ({ error } = await sb.from("survivor_pick").insert(payload));
+  }
+  if(error){
+    const z = $("sv-zona");
+    const m = document.createElement("div");
+    m.className = "sv-msg err";
+    m.textContent = traduceSurvivor(error.message);
+    z.prepend(m);
+    g.disabled = false; g.textContent = SV.pickActual?'Actualizar mi pick':'Guardar mi pick';
+    return;
+  }
+  await pantallaSurvivor($("contenido"));
+  const z = $("sv-zona");
+  const m = document.createElement("div");
+  m.className = "sv-msg ok"; m.textContent = "¡Pick guardado!";
+  z.prepend(m);
+  setTimeout(()=>m.remove(), 2500);
+}
+
+function traduceSurvivor(msg){
+  const m = (msg||"").toLowerCase();
+  if(m.includes("survivor_pick_ticket_id_equipo_id")) return "Ya usaste ese equipo en este ticket. Elige otro.";
+  if(m.includes("ya arrancó") || m.includes("ya cerró") || m.includes("cerro") || m.includes("arranco")) return "Ya cerró el tiempo para pickear esta jornada.";
+  if(m.includes("adelantado")) return "Ese partido se adelantó y ya arrancó; el equipo ya no es seleccionable.";
+  if(m.includes("row-level security")) return "No tienes permiso para editar este boleto.";
+  return "No se pudo guardar: " + msg;
+}
+
+// ---- utilidades de tiempo/texto ----
+let relojInt = null;
+function arrancaReloj(){
+  if(relojInt) clearInterval(relojInt);
+  relojInt = setInterval(()=>{
+    const el = $("sv-cuenta"); if(!el){ clearInterval(relojInt); return; }
+    if(SV.deadline <= new Date()){ el.textContent = "Jornada cerrada"; clearInterval(relojInt); }
+    else el.textContent = textoReloj(SV.deadline);
+  }, 1000);
+}
+function textoReloj(fin){
+  const ms = fin - new Date();
+  if(ms <= 0) return "Jornada cerrada";
+  const d = Math.floor(ms/86400000), h = Math.floor(ms%86400000/3600000),
+        m = Math.floor(ms%3600000/60000), s = Math.floor(ms%60000/1000);
+  if(d>0) return `Cierra en ${d}d ${h}h ${m}m`;
+  if(h>0) return `Cierra en ${h}h ${m}m ${s}s`;
+  return `Cierra en ${m}m ${s}s`;
+}
+function fechaHora(iso){
+  const f = new Date(iso);
+  return f.toLocaleDateString("es-MX",{weekday:"short",day:"numeric",month:"short"}) +
+    " · " + f.toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});
+}
+function escapa(s){ const d=document.createElement("div"); d.textContent=s??""; return d.innerHTML; }
+
+// escudo del equipo: usa el logo subido a Storage; si no hay, monograma de color
+function escudoHTML(eq){
+  const mono = `<div class="sv-mono" style="background:${eq.color||'rgba(242,244,239,.1)'}">${escapa(eq.nombre_corto||'?')}</div>`;
+  if(!eq.escudo_url || !String(eq.escudo_url).startsWith('http')) return mono;
+  return `<img class="sv-escudo" src="${eq.escudo_url}" alt="${escapa(eq.nombre)}"
+    onerror="this.outerHTML='<div class=\\'sv-mono\\' style=\\'background:${eq.color||'#8A9490'}\\'>${escapa(eq.nombre_corto||'?')}</div>'">`;
+}
+
+// ===================== TRADUCIR ERRORES =====================
+function traduce(msg){
+  if(!msg) return "Algo falló.";
+  const m = msg.toLowerCase();
+  if(m.includes("invalid login")) return "Correo o contraseña incorrectos.";
+  if(m.includes("already registered") || m.includes("already been registered")) return "Ese correo ya tiene cuenta. Inicia sesión.";
+  if(m.includes("password should be at least")) return "La contraseña debe tener al menos 6 caracteres.";
+  if(m.includes("unable to validate email") || m.includes("invalid email")) return "Ese correo no parece válido.";
+  if(m.includes("email not confirmed")) return "Confirma tu correo antes de entrar.";
+  return msg;
+}
+
+// ===================== SESIÓN PERSISTENTE =====================
+// si ya había sesión activa, entrar directo
+(async () => {
+  const { data } = await sb.auth.getSession();
+  if(data.session){ await entrar(); }
+})();
+</script>
+</body>
+</html>

@@ -305,8 +305,20 @@
   .grp-pick-chip{display:flex;align-items:center;gap:5px;font-size:12px;
     background:rgba(6,37,26,.5);border:1px solid var(--linea);border-radius:999px;padding:4px 10px}
   .grp-pick-chip .eq{font-weight:600}
+  .grp-pick-chip.gano{background:rgba(182,255,60,.15);border-color:rgba(182,255,60,.5)}
+  .grp-pick-chip.gano .eq{color:var(--lima)}
+  .grp-pick-chip.perdio{background:rgba(255,90,71,.15);border-color:rgba(255,90,71,.5)}
+  .grp-pick-chip.perdio .eq{color:#FF8A7A}
   .grp-conteo{display:flex;gap:12px;justify-content:center;margin-top:8px;font-size:12px;color:var(--pizarra)}
   .grp-conteo b{color:var(--hueso)}
+
+  /* listado compacto: partidos que nadie eligió */
+  .grp-nadie{margin-top:14px;padding:12px;border:1px dashed var(--linea);border-radius:var(--radio)}
+  .grp-nadie .titu{font-size:11px;color:var(--pizarra);text-transform:uppercase;
+    letter-spacing:.04em;margin-bottom:8px}
+  .grp-nadie-fila{font-size:13px;color:var(--pizarra);padding:4px 0;
+    font-family:'Barlow Condensed',sans-serif;font-weight:600}
+  .grp-nadie-fila span{opacity:.6;font-weight:400;margin:0 4px}
 
   /* partidos para pickear */
   .sv-instru{font-size:14px;color:var(--pizarra);margin:16px 0 10px}
@@ -805,7 +817,7 @@ async function renderGrupo(){
   let picksPorPartido = {};
   if(partidoIds.length){
     const { data: gpicks } = await sb.from("survivor_pick")
-      .select("partido_id, equipo_id, ticket_id, "+
+      .select("partido_id, equipo_id, ticket_id, resultado, "+
               "eq:equipo_id(nombre,nombre_corto,escudo_url,color), "+
               "tk:ticket_id(apodo)")
       .eq("jornada", SV.jornada).in("partido_id", partidoIds);
@@ -814,8 +826,14 @@ async function renderGrupo(){
     });
   }
 
+  // separar: partidos con picks (o aún con candado) van como tarjeta;
+  // partidos ya cerrados donde nadie eligió van a un listado compacto aparte
+  const sinPicks = [];
   SV.partidos.forEach(p=>{
     const cerrado = new Date(p.kickoff) <= new Date();
+    const lista = picksPorPartido[p.id] || [];
+    if(cerrado && lista.length === 0){ sinPicks.push(p); return; }
+
     const escLoc = escudoMini(p.loc), escVis = escudoMini(p.vis);
     html += `<div class="grp-partido">
       <div class="mt">${escLoc} ${escapa(p.loc.nombre_corto||p.loc.nombre)} <span style="color:var(--pizarra)">vs</span> ${escapa(p.vis.nombre_corto||p.vis.nombre)} ${escVis}</div>
@@ -823,26 +841,30 @@ async function renderGrupo(){
     if(!cerrado){
       html += `<div class="grp-locked"><span class="cand">🔒</span>Los picks se revelan cuando arranca el partido</div>`;
     } else {
-      const lista = picksPorPartido[p.id] || [];
-      if(lista.length === 0){
-        html += `<div class="grp-locked">Nadie eligió en este partido</div>`;
-      } else {
-        // conteo por equipo
-        let cLoc=0, cVis=0;
-        html += `<div class="grp-picks-lista">`;
-        lista.forEach(pk=>{
-          if(pk.equipo_id === p.equipo_local_id) cLoc++; else if(pk.equipo_id === p.equipo_visitante_id) cVis++;
-          html += `<div class="grp-pick-chip">${escudoMini(pk.eq)}<span class="eq">${escapa(pk.tk?.apodo||'—')}</span></div>`;
-        });
-        html += `</div>
-        <div class="grp-conteo">
-          <span><b>${cLoc}</b> ${escapa(p.loc.nombre_corto||'L')}</span>
-          <span><b>${cVis}</b> ${escapa(p.vis.nombre_corto||'V')}</span>
-        </div>`;
-      }
+      let cLoc=0, cVis=0;
+      html += `<div class="grp-picks-lista">`;
+      lista.forEach(pk=>{
+        if(pk.equipo_id === p.equipo_local_id) cLoc++; else if(pk.equipo_id === p.equipo_visitante_id) cVis++;
+        const clase = pk.resultado === 'ganado' ? 'gano' : (pk.resultado === 'perdido' ? 'perdio' : '');
+        html += `<div class="grp-pick-chip ${clase}">${escudoMini(pk.eq)}<span class="eq">${escapa(pk.tk?.apodo||'—')}</span></div>`;
+      });
+      html += `</div>
+      <div class="grp-conteo">
+        <span><b>${cLoc}</b> ${escapa(p.loc.nombre_corto||'L')}</span>
+        <span><b>${cVis}</b> ${escapa(p.vis.nombre_corto||'V')}</span>
+      </div>`;
     }
     html += `</div>`;
   });
+
+  // listado compacto de partidos que nadie eligió
+  if(sinPicks.length){
+    html += `<div class="grp-nadie"><div class="titu">Nadie eligió en estos partidos</div>`;
+    sinPicks.forEach(p=>{
+      html += `<div class="grp-nadie-fila">${escapa(p.loc.nombre_corto||p.loc.nombre)} <span>vs</span> ${escapa(p.vis.nombre_corto||p.vis.nombre)}</div>`;
+    });
+    html += `</div>`;
+  }
   html += `</div>`;
 
   cont.innerHTML = html;
@@ -879,21 +901,25 @@ function renderZona(cerrada, t){
   let html = `<div class="sv-instru">Elige al equipo que crees que <b>gana</b>. No puedes repetir un equipo que ya usaste en este boleto. El empate te cuesta una vida.</div>`;
 
   SV.partidos.forEach(p=>{
+    const arrancado = new Date(p.kickoff) <= new Date();  // partido ya empezó
     const usadoLoc = SV.equiposUsados[p.equipo_local_id] && SV.equiposUsados[p.equipo_local_id] !== SV.jornada;
     const usadoVis = SV.equiposUsados[p.equipo_visitante_id] && SV.equiposUsados[p.equipo_visitante_id] !== SV.jornada;
     const elLoc = SV.eleccion === p.equipo_local_id;
     const elVis = SV.eleccion === p.equipo_visitante_id;
+    // un lado no es seleccionable si: equipo ya usado, o el partido ya arrancó
+    const bloqLoc = usadoLoc || arrancado;
+    const bloqVis = usadoVis || arrancado;
     html += `
-    <div class="sv-partido">
-      <div class="hora">${fechaHora(p.kickoff)}</div>
+    <div class="sv-partido ${arrancado?'arrancado':''}">
+      <div class="hora">${fechaHora(p.kickoff)}${arrancado?' · ya arrancó 🔒':''}</div>
       <div class="sv-lados">
-        <div class="sv-lado ${elLoc?'elegido':''} ${usadoLoc?'usado':''}"
-             data-eq="${p.equipo_local_id}" data-part="${p.id}">
+        <div class="sv-lado ${elLoc?'elegido':''} ${bloqLoc?'usado':''}"
+             data-eq="${p.equipo_local_id}" data-part="${p.id}" data-bloq="${bloqLoc?1:0}">
           ${escudoHTML(p.loc)}<div class="nom">${escapa(p.loc.nombre)}</div><div class="cl">local</div>
         </div>
         <div class="sv-vs">vs</div>
-        <div class="sv-lado ${elVis?'elegido':''} ${usadoVis?'usado':''}"
-             data-eq="${p.equipo_visitante_id}" data-part="${p.id}">
+        <div class="sv-lado ${elVis?'elegido':''} ${bloqVis?'usado':''}"
+             data-eq="${p.equipo_visitante_id}" data-part="${p.id}" data-bloq="${bloqVis?1:0}">
           ${escudoHTML(p.vis)}<div class="nom">${escapa(p.vis.nombre)}</div><div class="cl">visitante</div>
         </div>
       </div>
@@ -907,7 +933,7 @@ function renderZona(cerrada, t){
 
   if(!cerrada){
     z.querySelectorAll(".sv-lado").forEach(el=>{
-      if(el.classList.contains("usado")) return;
+      if(el.classList.contains("usado") || el.dataset.bloq==='1') return;
       el.addEventListener("click", ()=>{
         SV.eleccion = el.dataset.eq;
         SV.partidoElegido = el.dataset.part;

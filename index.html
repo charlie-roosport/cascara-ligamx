@@ -182,6 +182,41 @@
     background:transparent;border:1px solid rgba(255,90,71,.4);color:#FF8A7A;cursor:pointer;
     font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px}
 
+  /* ---------- ADMIN ---------- */
+  .ad-h2{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:30px;margin-bottom:2px}
+  .ad-sub{color:var(--pizarra);font-size:13px;margin-bottom:18px}
+  .ad-bloque{background:rgba(15,78,58,.72);backdrop-filter:blur(2px);
+    border:1px solid var(--linea);border-radius:var(--radio);padding:16px;margin-bottom:14px}
+  .ad-bloque h3{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:19px;margin-bottom:4px}
+  .ad-bloque .d{color:var(--pizarra);font-size:13px;margin-bottom:12px;line-height:1.4}
+  .ad-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .ad-btn{padding:10px 14px;border-radius:10px;border:none;cursor:pointer;
+    font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;
+    background:var(--lima);color:#06251A}
+  .ad-btn.sec{background:transparent;color:var(--hueso);border:1px solid var(--linea)}
+  .ad-btn:disabled{opacity:.5;cursor:default}
+  .ad-btn:active{transform:translateY(1px)}
+  .ad-inp{padding:9px 11px;border-radius:8px;background:rgba(6,37,26,.5);
+    border:1px solid var(--linea);color:var(--hueso);font-size:14px;font-family:inherit;width:70px}
+  .ad-log{margin-top:10px;font-size:12px;color:var(--pizarra);white-space:pre-wrap;
+    background:rgba(6,37,26,.5);border-radius:8px;padding:10px;max-height:160px;overflow:auto;line-height:1.5}
+  .ad-fila{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--linea)}
+  .ad-fila:first-of-type{border-top:none}
+  .ad-fila .info{flex:1;min-width:0}
+  .ad-fila .n{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px}
+  .ad-fila .m{font-size:11px;color:var(--pizarra)}
+  .ad-mini{padding:6px 10px;border-radius:8px;border:none;cursor:pointer;font-size:12px;
+    font-family:'Barlow Condensed',sans-serif;font-weight:600}
+  .ad-mini.on{background:var(--lima);color:#06251A}
+  .ad-mini.off{background:rgba(255,90,71,.18);color:#FF8A7A}
+  .ad-mini.gris{background:rgba(242,244,239,.1);color:var(--hueso)}
+  .ad-tabs{display:flex;gap:4px;background:rgba(6,37,26,.5);border:1px solid var(--linea);
+    border-radius:999px;padding:4px;margin-bottom:16px;overflow-x:auto}
+  .ad-tabs button{flex:1;padding:8px 10px;border:none;border-radius:999px;cursor:pointer;
+    background:transparent;color:var(--pizarra);white-space:nowrap;
+    font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px}
+  .ad-tabs button.activa{background:var(--lima);color:#06251A}
+
   /* ---------- SURVIVOR ---------- */
   .sv-cabecera{margin-bottom:18px}
   .sv-cabecera h2{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:30px;line-height:1}
@@ -392,6 +427,10 @@
       <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
       Cuenta
     </button>
+    <button class="tab oculto" data-tab="admin" id="tab-admin">
+      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l7 4v6c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6z"/></svg>
+      Admin
+    </button>
   </nav>
 </section>
 
@@ -491,6 +530,8 @@ async function entrar(){
   }
   perfil = fila;
   $("mi-nombre").textContent = perfil ? perfil.nombre : "Jugador";
+  // mostrar pestaña admin solo si el perfil es admin
+  $("tab-admin").classList.toggle("oculto", !(perfil && perfil.es_admin));
   $("auth").style.display = "none";
   $("app").style.display = "flex";
   cambiaTab("survivor");
@@ -516,6 +557,7 @@ function cambiaTab(nombre){
   const c = $("contenido");
   if(nombre === "survivor"){ pantallaSurvivor(c); return; }
   if(nombre === "cuenta"){ pantallaCuenta(c); return; }
+  if(nombre === "admin"){ pantallaAdmin(c); return; }
   // Las demás siguen como placeholder hasta su capa
   const titulos = {
     quiniela: ["Jornada + Acumulada", "Aquí harás tus picks L/E/V de la jornada y verás la tabla."],
@@ -1061,6 +1103,165 @@ async function inscribir(torneoId, modalidad, c){
   });
   if(error){ alert("No se pudo inscribir: " + error.message); return; }
   pantallaCuenta(c);
+}
+
+// =====================================================================
+//  PANTALLA ADMIN (solo admin)
+// =====================================================================
+const AD = { seccion:'calendario' };
+
+async function pantallaAdmin(c){
+  if(!perfil || !perfil.es_admin){ c.innerHTML = `<div class="ad-bloque">Sin acceso.</div>`; return; }
+  let html = `
+  <div class="ad-h2">Panel admin</div>
+  <div class="ad-sub">Control de la quiniela · ${escapa(perfil.nombre)}</div>
+  <div class="ad-tabs">
+    <button data-s="calendario" class="${AD.seccion==='calendario'?'activa':''}">Calendario</button>
+    <button data-s="jugadores" class="${AD.seccion==='jugadores'?'activa':''}">Jugadores</button>
+    <button data-s="cierre" class="${AD.seccion==='cierre'?'activa':''}">Cierre</button>
+  </div>
+  <div id="ad-cont"></div>`;
+  c.innerHTML = html;
+  c.querySelectorAll(".ad-tabs button").forEach(b=>{
+    b.addEventListener("click", ()=>{ AD.seccion = b.dataset.s; pantallaAdmin(c); });
+  });
+  if(AD.seccion==='calendario') adCalendario();
+  else if(AD.seccion==='jugadores') adJugadores();
+  else adCierre();
+}
+
+// token del usuario actual, para llamar Edge Functions protegidas
+async function tokenActual(){
+  const { data } = await sb.auth.getSession();
+  return data.session?.access_token || "";
+}
+
+// ---- SECCIÓN CALENDARIO / RESULTADOS ----
+async function adCalendario(){
+  const cont = $("ad-cont");
+  cont.innerHTML = `
+  <div class="ad-bloque">
+    <h3>Importar calendario y resultados</h3>
+    <div class="d">Jala los partidos de Liga MX desde TheSportsDB al torneo activo. Si ya existen, actualiza marcadores y horas. Puedes traer un rango de jornadas.</div>
+    <div class="ad-row">
+      <span style="font-size:13px;color:var(--pizarra)">Jornadas</span>
+      <input class="ad-inp" id="ad-desde" type="number" min="1" max="17" value="1">
+      <span style="color:var(--pizarra)">a</span>
+      <input class="ad-inp" id="ad-hasta" type="number" min="1" max="17" value="17">
+      <button class="ad-btn" id="ad-importar">Importar</button>
+    </div>
+    <div class="ad-log oculto" id="ad-log-cal"></div>
+  </div>
+  <div class="ad-bloque">
+    <h3>Resumen del torneo</h3>
+    <div id="ad-resumen" class="d">Cargando…</div>
+  </div>`;
+
+  $("ad-importar").addEventListener("click", async ()=>{
+    const desde = $("ad-desde").value || 1, hasta = $("ad-hasta").value || 17;
+    const log = $("ad-log-cal"); log.classList.remove("oculto");
+    log.textContent = "Importando jornadas "+desde+" a "+hasta+"… (puede tardar)";
+    const btn = $("ad-importar"); btn.disabled = true;
+    try{
+      const token = await tokenActual();
+      const r = await fetch(`${SUPABASE_URL}/functions/v1/importar-calendario?desde=${desde}&hasta=${hasta}`, {
+        headers:{ "Authorization":`Bearer ${token}`, "apikey":SUPABASE_ANON }
+      });
+      const j = await r.json();
+      if(!j.ok){ log.textContent = "Error: "+(j.err||"desconocido"); }
+      else{
+        log.textContent = `Listo ✓\nJornadas procesadas: ${j.jornadas}\nInsertados: ${j.insertados}\nActualizados: ${j.actualizados}`+
+          (j.sin_equipo?.length? `\n⚠ Sin equipo mapeado: ${j.sin_equipo.length}`:'')+
+          (j.errores?.length? `\n⚠ Errores: ${j.errores.length}`:'');
+        adResumenTorneo();
+      }
+    }catch(e){ log.textContent = "Falló: "+String(e); }
+    btn.disabled = false;
+  });
+  adResumenTorneo();
+}
+
+async function adResumenTorneo(){
+  const cont = $("ad-resumen"); if(!cont) return;
+  const { data: tor } = await sb.from("torneo").select("*").eq("activo",true).maybeSingle();
+  if(!tor){ cont.textContent = "No hay torneo activo."; return; }
+  const { count: nPart } = await sb.from("partido").select("*",{count:'exact',head:true}).eq("torneo_id",tor.id);
+  const { data: js } = await sb.from("partido").select("jornada").eq("torneo_id",tor.id);
+  const jornadas = new Set((js||[]).map(x=>x.jornada)).size;
+  const { count: nDl } = await sb.from("jornada_deadline").select("*",{count:'exact',head:true}).eq("torneo_id",tor.id);
+  cont.innerHTML = `<b style="color:var(--hueso)">${escapa(tor.nombre)}</b><br>
+    Partidos cargados: ${nPart||0} · Jornadas: ${jornadas}<br>
+    Jornadas con cierre de Survivor configurado: ${nDl||0}`;
+}
+
+// ---- SECCIÓN JUGADORES / PAGOS / BLOQUEOS ----
+async function adJugadores(){
+  const cont = $("ad-cont");
+  cont.innerHTML = `<div class="ad-bloque"><h3>Boletos de Survivor</h3>
+    <div class="d">Marca pagos, bloquea morosos, o marca cuentas de prueba.</div>
+    <div id="ad-tickets">Cargando…</div></div>`;
+
+  const { data: tor } = await sb.from("torneo").select("id").eq("activo",true).maybeSingle();
+  const { data: tks } = await sb.from("survivor_ticket")
+    .select("id, apodo, pagado, bloqueado, vidas, eliminado, usuario_id, duenio:usuario_id(nombre, es_prueba)")
+    .eq("torneo_id", tor.id).order("creado_en");
+  const box = $("ad-tickets");
+  if(!tks || !tks.length){ box.innerHTML = `<div class="d">No hay boletos todavía.</div>`; return; }
+  let html = "";
+  tks.forEach(tk=>{
+    html += `<div class="ad-fila">
+      <div class="info">
+        <div class="n">${escapa(tk.apodo)} ${tk.duenio?.es_prueba?'<span style="color:var(--pizarra)">(prueba)</span>':''}</div>
+        <div class="m">${escapa(tk.duenio?.nombre||'—')} · ${tk.vidas} vidas${tk.eliminado?' · eliminado':''}</div>
+      </div>
+      <button class="ad-mini ${tk.pagado?'on':'gris'}" data-acc="pago" data-id="${tk.id}" data-val="${tk.pagado?1:0}">${tk.pagado?'pagado':'marcar pago'}</button>
+      <button class="ad-mini ${tk.bloqueado?'off':'gris'}" data-acc="bloqueo" data-id="${tk.id}" data-val="${tk.bloqueado?1:0}">${tk.bloqueado?'bloqueado':'bloquear'}</button>
+    </div>`;
+  });
+  box.innerHTML = html;
+  box.querySelectorAll(".ad-mini").forEach(b=>{
+    b.addEventListener("click", async ()=>{
+      const id=b.dataset.id, acc=b.dataset.acc, val = b.dataset.val==='1';
+      const campo = acc==='pago' ? 'pagado' : 'bloqueado';
+      const upd = { [campo]: !val };
+      if(acc==='pago' && !val) upd.pagado_en = new Date().toISOString();
+      const { error } = await sb.from("survivor_ticket").update(upd).eq("id", id);
+      if(error){ alert("Error: "+error.message); return; }
+      adJugadores();
+    });
+  });
+}
+
+// ---- SECCIÓN CIERRE DE JORNADA (Survivor) ----
+async function adCierre(){
+  const cont = $("ad-cont");
+  const { data: tor } = await sb.from("torneo").select("id, nombre").eq("activo",true).maybeSingle();
+  const { data: dls } = await sb.from("jornada_deadline").select("jornada, cierre_survivor").eq("torneo_id",tor.id).order("jornada");
+  let opciones = (dls||[]).map(d=>`<option value="${d.jornada}">Jornada ${d.jornada}</option>`).join("");
+  cont.innerHTML = `
+  <div class="ad-bloque">
+    <h3>Cerrar jornada de Survivor</h3>
+    <div class="d">Descuenta vidas a los boletos según su pick (o falta de pick) en esa jornada. Es idempotente: correrlo dos veces no descuenta de más. Hazlo cuando ya todos los partidos de la jornada tengan resultado.</div>
+    <div class="ad-row">
+      <select class="ad-inp" id="ad-jcierre" style="width:auto">${opciones||'<option>—</option>'}</select>
+      <button class="ad-btn" id="ad-cerrar">Cerrar jornada</button>
+    </div>
+    <div class="ad-log oculto" id="ad-log-cierre"></div>
+  </div>`;
+
+  const bc = $("ad-cerrar");
+  if(bc) bc.addEventListener("click", async ()=>{
+    const j = $("ad-jcierre").value;
+    if(!j || j==='—') return;
+    if(!confirm(`¿Cerrar la jornada ${j}? Esto descuenta vidas.`)) return;
+    const log = $("ad-log-cierre"); log.classList.remove("oculto"); log.textContent = "Cerrando…";
+    const { data, error } = await sb.rpc("cerrar_jornada_survivor", { p_torneo_id: tor.id, p_jornada: parseInt(j) });
+    if(error){ log.textContent = "Error: "+error.message; return; }
+    const filas = data||[];
+    const perdieron = filas.filter(f=>f.perdio_vida).length;
+    const elim = filas.filter(f=>f.eliminado).length;
+    log.textContent = `Jornada ${j} cerrada ✓\nBoletos procesados: ${filas.length}\nPerdieron vida: ${perdieron}\nEliminados: ${elim}`;
+  });
 }
 
 // ===================== TRADUCIR ERRORES =====================

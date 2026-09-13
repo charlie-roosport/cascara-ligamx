@@ -114,6 +114,74 @@
 
   .oculto{display:none!important}
 
+  /* ---------- RESPONSIVE: en compu, marco centrado tipo teléfono ---------- */
+  @media (min-width: 620px){
+    /* fondo general oscuro; la cancha se acota al marco central */
+    body{ background:#061A12; }
+    body::before{
+      left: 50%; transform: translateX(-50%);
+      width: 460px; right: auto;
+    }
+    /* la app y el login se contienen en una columna central */
+    #app, #auth{
+      max-width: 460px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    #app{
+      min-height: 100dvh;
+      border-left: 1px solid var(--linea);
+      border-right: 1px solid var(--linea);
+      box-shadow: 0 0 60px rgba(0,0,0,.35);
+    }
+    /* la nav inferior se ancla dentro del marco, no a todo el ancho */
+    .tabs{
+      max-width: 460px;
+      margin: 0 auto;
+      left: 0; right: 0;
+    }
+  }
+  /* en pantallas muy anchas, un poco más de aire */
+  @media (min-width: 1000px){
+    #app{ box-shadow: 0 0 100px rgba(0,0,0,.5); }
+  }
+
+  /* ---------- CUENTA ---------- */
+  .ct-cabecera{margin-bottom:20px}
+  .ct-cabecera h2{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:30px;line-height:1}
+  .ct-cabecera .sub{color:var(--pizarra);font-size:14px;margin-top:4px}
+  .ct-bloque{
+    background:rgba(15,78,58,.72);backdrop-filter:blur(2px);
+    border:1px solid var(--linea);border-radius:var(--radio);
+    padding:16px;margin-bottom:14px;
+  }
+  .ct-bloque h3{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:20px;margin-bottom:4px}
+  .ct-bloque .desc{color:var(--pizarra);font-size:13px;margin-bottom:12px;line-height:1.4}
+  .ct-fila{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:10px 0;border-top:1px solid var(--linea);
+  }
+  .ct-fila:first-of-type{border-top:none}
+  .ct-fila .info{flex:1;min-width:0}
+  .ct-fila .nom{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px}
+  .ct-fila .meta{font-size:12px;color:var(--pizarra);margin-top:2px}
+  .ct-badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;white-space:nowrap}
+  .ct-badge.pagado{background:rgba(182,255,60,.16);color:var(--lima)}
+  .ct-badge.pend{background:rgba(255,180,60,.16);color:#FFC93C}
+  .ct-badge.bloq{background:rgba(255,90,71,.16);color:#FF8A7A}
+  .ct-btn{
+    padding:10px 14px;border-radius:10px;border:none;cursor:pointer;white-space:nowrap;
+    font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;
+    background:var(--lima);color:#06251A;
+  }
+  .ct-btn.sec{background:transparent;color:var(--hueso);border:1px solid var(--linea)}
+  .ct-btn:active{transform:translateY(1px)}
+  .ct-btn:disabled{opacity:.4;cursor:default}
+  .ct-vacio{color:var(--pizarra);font-size:13px;padding:6px 0}
+  .ct-salir{margin-top:8px;width:100%;padding:13px;border-radius:var(--radio);
+    background:transparent;border:1px solid rgba(255,90,71,.4);color:#FF8A7A;cursor:pointer;
+    font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px}
+
   /* ---------- SURVIVOR ---------- */
   .sv-cabecera{margin-bottom:18px}
   .sv-cabecera h2{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:30px;line-height:1}
@@ -147,6 +215,23 @@
     display:flex;align-items:center;justify-content:center;gap:6px;
   }
   .sv-nuevo:hover{border-color:var(--lima);color:var(--lima)}
+
+  /* panel de equipos ya usados por el boleto */
+  .sv-usados{
+    background:rgba(11,61,46,.5);border:1px solid var(--linea);border-radius:var(--radio);
+    padding:12px;margin:4px 0 6px;
+  }
+  .sv-usados .titu{font-size:12px;color:var(--pizarra);margin-bottom:8px;
+    text-transform:uppercase;letter-spacing:.04em}
+  .sv-usados .tira{display:flex;gap:10px;overflow-x:auto;padding-bottom:2px}
+  .sv-usado-item{flex:0 0 auto;text-align:center;width:44px}
+  .sv-usado-item img,.sv-usado-item .mini-mono{
+    width:30px;height:30px;margin:0 auto 3px;display:block;object-fit:contain}
+  .mini-mono{border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;color:#fff;
+    text-shadow:0 1px 2px rgba(0,0,0,.4)}
+  .sv-usado-item .jlbl{font-size:10px;color:var(--pizarra)}
+  .sv-usados .nada{font-size:13px;color:var(--pizarra)}
 
   /* partidos para pickear */
   .sv-instru{font-size:14px;color:var(--pizarra);margin:16px 0 10px}
@@ -390,11 +475,11 @@ function cambiaTab(nombre){
     t.classList.toggle("activa", t.dataset.tab === nombre));
   const c = $("contenido");
   if(nombre === "survivor"){ pantallaSurvivor(c); return; }
+  if(nombre === "cuenta"){ pantallaCuenta(c); return; }
   // Las demás siguen como placeholder hasta su capa
   const titulos = {
     quiniela: ["Jornada + Acumulada", "Aquí harás tus picks L/E/V de la jornada y verás la tabla."],
-    liguilla: ["Liguilla", "Aquí llenarás tu bracket y tus pronósticos ronda por ronda."],
-    cuenta:   ["Tu cuenta", "Aquí verás tus inscripciones, pagos y datos."]
+    liguilla: ["Liguilla", "Aquí llenarás tu bracket y tus pronósticos ronda por ronda."]
   };
   const [t, d] = titulos[nombre];
   c.innerHTML = `<div class="placeholder"><div class="cond">${t}</div><p>${d}</p><p style="margin-top:10px;font-size:13px;">Próximamente en la siguiente capa.</p></div>`;
@@ -457,13 +542,17 @@ async function pantallaSurvivor(c){
 
   // 5. equipos ya usados por el ticket seleccionado + pick actual de esta jornada
   SV.equiposUsados = {};
+  SV.listaUsados = [];   // para el panel: [{jornada, nombre, corto, escudo, color}]
   SV.pickActual = null;
   SV.eleccion = null;
   if(SV.ticketSel){
     const { data: usados } = await sb.from("survivor_pick")
-      .select("equipo_id, jornada, partido_id").eq("ticket_id", SV.ticketSel);
+      .select("equipo_id, jornada, partido_id, eq:equipo_id(nombre,nombre_corto,escudo_url,color)")
+      .eq("ticket_id", SV.ticketSel).order("jornada");
     (usados||[]).forEach(u => {
       SV.equiposUsados[u.equipo_id] = u.jornada;
+      if(u.eq) SV.listaUsados.push({ jornada:u.jornada, nombre:u.eq.nombre,
+        nombre_corto:u.eq.nombre_corto, escudo_url:u.eq.escudo_url, color:u.eq.color });
       if(u.jornada === SV.jornada){ SV.pickActual = u; SV.eleccion = u.equipo_id; }
     });
   }
@@ -507,8 +596,26 @@ function render(c){
         ${tk.eliminado?'<div class="estado-muerto">Eliminado</div>':''}
       </div>`;
   });
-  html += `<div class="sv-nuevo" id="sv-nuevo">+ Nuevo boleto</div>`;
   html += `</div>`;
+
+  // panel de equipos ya usados por el boleto seleccionado
+  if(SV.ticketSel){
+    html += `<div class="sv-usados">
+      <div class="titu">Equipos que ya usó este boleto</div>`;
+    if(SV.listaUsados.length === 0){
+      html += `<div class="nada">Ninguno todavía. Puedes elegir cualquier equipo.</div>`;
+    } else {
+      html += `<div class="tira">`;
+      SV.listaUsados.forEach(u=>{
+        const img = (u.escudo_url && String(u.escudo_url).startsWith('http'))
+          ? `<img src="${u.escudo_url}" alt="${escapa(u.nombre)}">`
+          : `<div class="mini-mono" style="background:${u.color||'#8A9490'}">${escapa(u.nombre_corto||'?')}</div>`;
+        html += `<div class="sv-usado-item">${img}<div class="jlbl">J${u.jornada}</div></div>`;
+      });
+      html += `</div>`;
+    }
+    html += `</div>`;
+  }
 
   html += `<div id="sv-zona"></div>`;
   c.innerHTML = html;
@@ -520,7 +627,6 @@ function render(c){
       await pantallaSurvivor($("contenido"));
     });
   });
-  $("sv-nuevo").addEventListener("click", crearTicket);
 
   // navegación de jornadas
   const jp = $("j-prev"), js2 = $("j-sig");
@@ -541,7 +647,8 @@ function renderZona(cerrada, t){
   const z = $("sv-zona");
   if(!z) return;
   if(SV.tickets.length === 0){
-    z.innerHTML = `<div class="sv-vacio">Aún no tienes boletos. Crea uno con "+ Nuevo boleto" para entrarle al Survivor.</div>`;
+    z.innerHTML = `<div class="sv-vacio">Aún no tienes boletos de Survivor.<br><br>
+      <button class="ct-btn" onclick="cambiaTab('cuenta')">Comprar un boleto en tu Cuenta</button></div>`;
     return;
   }
   if(t && t.eliminado){
@@ -594,17 +701,6 @@ function renderZona(cerrada, t){
     const g = $("sv-guardar");
     if(g) g.addEventListener("click", guardarPick);
   }
-}
-
-async function crearTicket(){
-  const apodo = prompt("Ponle un apodo a tu boleto (para distinguir tus varios):", "");
-  if(!apodo || !apodo.trim()) return;
-  const { error } = await sb.from("survivor_ticket").insert({
-    torneo_id: SV.torneo.id, usuario_id: perfil.id, apodo: apodo.trim()
-  });
-  if(error){ alert("No se pudo crear el boleto: " + error.message); return; }
-  SV.ticketSel = null; // que elija el nuevo
-  await pantallaSurvivor($("contenido"));
 }
 
 async function guardarPick(){
@@ -678,6 +774,119 @@ function escudoHTML(eq){
   if(!eq.escudo_url || !String(eq.escudo_url).startsWith('http')) return mono;
   return `<img class="sv-escudo" src="${eq.escudo_url}" alt="${escapa(eq.nombre)}"
     onerror="this.outerHTML='<div class=\\'sv-mono\\' style=\\'background:${eq.color||'#8A9490'}\\'>${escapa(eq.nombre_corto||'?')}</div>'">`;
+}
+
+// =====================================================================
+//  PANTALLA CUENTA — centro de compras (boletos e inscripciones)
+// =====================================================================
+async function pantallaCuenta(c){
+  c.innerHTML = `<p style="color:var(--pizarra)">Cargando…</p>`;
+
+  // torneo activo
+  const { data: tor } = await sb.from("torneo").select("*").eq("activo", true).maybeSingle();
+  if(!tor){ c.innerHTML = `<div class="ct-bloque"><div class="ct-vacio">No hay torneo activo todavía.</div></div>`; return; }
+
+  // mis boletos de survivor
+  const { data: tickets } = await sb.from("survivor_ticket")
+    .select("*").eq("torneo_id", tor.id).eq("usuario_id", perfil.id).order("creado_en");
+  // mis inscripciones (jornada_acumulada, liguilla)
+  const { data: insc } = await sb.from("inscripcion")
+    .select("*").eq("torneo_id", tor.id).eq("usuario_id", perfil.id);
+
+  const tieneJornada = (insc||[]).find(i=>i.modalidad==='jornada_acumulada');
+  const tieneLiguilla = (insc||[]).find(i=>i.modalidad==='liguilla');
+
+  const badge = (row) => {
+    if(row.bloqueado) return `<span class="ct-badge bloq">bloqueado</span>`;
+    if(row.pagado)    return `<span class="ct-badge pagado">pagado</span>`;
+    return `<span class="ct-badge pend">pago pendiente</span>`;
+  };
+
+  let html = `
+  <div class="ct-cabecera">
+    <h2>Tu cuenta</h2>
+    <div class="sub">${escapa(perfil.nombre)} · ${escapa(tor.nombre)}</div>
+  </div>`;
+
+  // ---- SURVIVOR ----
+  let filasSv = "";
+  (tickets||[]).forEach(tk=>{
+    filasSv += `
+    <div class="ct-fila">
+      <div class="info">
+        <div class="nom">${escapa(tk.apodo)}</div>
+        <div class="meta">${tk.vidas} vidas${tk.eliminado?' · eliminado':''}</div>
+      </div>
+      ${badge(tk)}
+    </div>`;
+  });
+  if(!filasSv) filasSv = `<div class="ct-vacio">Aún no tienes boletos de Survivor.</div>`;
+  html += `
+  <div class="ct-bloque">
+    <h3>Survivor</h3>
+    <div class="desc">Cada boleto son 5 vidas. Puedes comprar los que quieras, cada uno con su apodo.</div>
+    ${filasSv}
+    <div class="ct-fila" style="border-top:1px solid var(--linea)">
+      <div class="info"><div class="meta">Compra un boleto nuevo</div></div>
+      <button class="ct-btn" id="comprar-sv">+ Nuevo boleto</button>
+    </div>
+  </div>`;
+
+  // ---- JORNADA + ACUMULADA ----
+  html += `
+  <div class="ct-bloque">
+    <h3>Jornada + Acumulada</h3>
+    <div class="desc">Una sola inscripción para jugar todas las jornadas y la acumulada del torneo.</div>
+    ${tieneJornada
+      ? `<div class="ct-fila"><div class="info"><div class="nom">Inscrito</div></div>${badge(tieneJornada)}</div>`
+      : `<div class="ct-fila"><div class="info"><div class="meta">No estás inscrito</div></div>
+         <button class="ct-btn" id="inscribir-jornada">Inscribirme</button></div>`}
+  </div>`;
+
+  // ---- LIGUILLA ----
+  html += `
+  <div class="ct-bloque">
+    <h3>Liguilla</h3>
+    <div class="desc">Bracket de la fase final. Inscripción aparte, corta e intensa.</div>
+    ${tieneLiguilla
+      ? `<div class="ct-fila"><div class="info"><div class="nom">Inscrito</div></div>${badge(tieneLiguilla)}</div>`
+      : `<div class="ct-fila"><div class="info"><div class="meta">No estás inscrito</div></div>
+         <button class="ct-btn" id="inscribir-liguilla">Inscribirme</button></div>`}
+  </div>`;
+
+  // ---- salir ----
+  html += `<button class="ct-salir" id="ct-salir">Cerrar sesión</button>`;
+
+  c.innerHTML = html;
+
+  // eventos
+  const bSv = $("comprar-sv");
+  if(bSv) bSv.addEventListener("click", async ()=>{
+    const apodo = prompt("Ponle un apodo a tu boleto (para distinguir tus varios):", "");
+    if(!apodo || !apodo.trim()) return;
+    const { error } = await sb.from("survivor_ticket").insert({
+      torneo_id: tor.id, usuario_id: perfil.id, apodo: apodo.trim()
+    });
+    if(error){ alert("No se pudo crear el boleto: " + error.message); return; }
+    pantallaCuenta(c);
+  });
+  const bJ = $("inscribir-jornada");
+  if(bJ) bJ.addEventListener("click", ()=> inscribir(tor.id, 'jornada_acumulada', c));
+  const bL = $("inscribir-liguilla");
+  if(bL) bL.addEventListener("click", ()=> inscribir(tor.id, 'liguilla', c));
+  $("ct-salir").addEventListener("click", async ()=>{
+    await sb.auth.signOut(); perfil=null;
+    $("app").style.display="none"; $("auth").style.display="flex";
+    $("correo").value=""; $("clave").value=""; resetBtn();
+  });
+}
+
+async function inscribir(torneoId, modalidad, c){
+  const { error } = await sb.from("inscripcion").insert({
+    torneo_id: torneoId, usuario_id: perfil.id, modalidad
+  });
+  if(error){ alert("No se pudo inscribir: " + error.message); return; }
+  pantallaCuenta(c);
 }
 
 // ===================== TRADUCIR ERRORES =====================

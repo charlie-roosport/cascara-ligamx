@@ -588,7 +588,7 @@ const SV = { torneo:null, jornada:1, deadline:null, tickets:[], ticketSel:null,
              vista:'mis', listaUsados:[] };
 
 const svgVida = (llena) => llena
-  ? `<svg class="vida" viewBox="0 0 24 24" fill="var(--lima)" stroke="var(--lima)" stroke-width="2"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z"/></svg>`
+  ? `<svg class="vida" viewBox="0 0 24 24" fill="#FF4D4D" stroke="#FF4D4D" stroke-width="2"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z"/></svg>`
   : `<svg class="vida" viewBox="0 0 24 24" fill="none" stroke="var(--pizarra)" stroke-width="2"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z"/></svg>`;
 
 async function pantallaSurvivor(c){
@@ -654,6 +654,14 @@ async function pantallaSurvivor(c){
         nombre_corto:u.eq.nombre_corto, escudo_url:u.eq.escudo_url, color:u.eq.color });
       if(u.jornada === SV.jornada){ SV.pickActual = u; SV.eleccion = u.equipo_id; }
     });
+  }
+
+  // ¿el pick actual de esta jornada está en un partido que ya arrancó?
+  // Si sí, el turno ya se consumió: se bloquea cambiar en toda la jornada.
+  SV.pickConsumido = false;
+  if(SV.pickActual){
+    const pp = SV.partidos.find(x=>x.id === SV.pickActual.partido_id);
+    if(pp && new Date(pp.kickoff) <= new Date()) SV.pickConsumido = true;
   }
 
   render(c);
@@ -872,7 +880,7 @@ async function renderGrupo(){
 
 function svgVidaMini(llena){
   return llena
-    ? `<svg viewBox="0 0 24 24" width="13" height="13" fill="var(--lima)" stroke="var(--lima)" stroke-width="2"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z"/></svg>`
+    ? `<svg viewBox="0 0 24 24" width="13" height="13" fill="#FF4D4D" stroke="#FF4D4D" stroke-width="2"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z"/></svg>`
     : `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="var(--pizarra)" stroke-width="2"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z"/></svg>`;
 }
 function escudoMini(eq){
@@ -898,7 +906,16 @@ function renderZona(cerrada, t){
     return;
   }
 
-  let html = `<div class="sv-instru">Elige al equipo que crees que <b>gana</b>. No puedes repetir un equipo que ya usaste en este boleto. El empate te cuesta una vida.</div>`;
+  // pick ya consumido: su partido arrancó -> jornada bloqueada para este boleto
+  const bloqueadoTurno = cerrada || SV.pickConsumido;
+
+  let aviso = "";
+  if(SV.pickConsumido){
+    const eqPick = SV.listaUsados.find(u=>u.jornada===SV.jornada);
+    aviso = `<div class="sv-msg ok">Tu pick de esta jornada${eqPick?` (<b>${escapa(eqPick.nombre)}</b>)`:''} ya está en un partido que arrancó. Quedó fijo, no puedes cambiarlo.</div>`;
+  }
+
+  let html = aviso + `<div class="sv-instru">Elige al equipo que crees que <b>gana</b>. No puedes repetir un equipo que ya usaste en este boleto. El empate te cuesta una vida.</div>`;
 
   SV.partidos.forEach(p=>{
     const arrancado = new Date(p.kickoff) <= new Date();  // partido ya empezó
@@ -906,9 +923,9 @@ function renderZona(cerrada, t){
     const usadoVis = SV.equiposUsados[p.equipo_visitante_id] && SV.equiposUsados[p.equipo_visitante_id] !== SV.jornada;
     const elLoc = SV.eleccion === p.equipo_local_id;
     const elVis = SV.eleccion === p.equipo_visitante_id;
-    // un lado no es seleccionable si: equipo ya usado, o el partido ya arrancó
-    const bloqLoc = usadoLoc || arrancado;
-    const bloqVis = usadoVis || arrancado;
+    // un lado no es seleccionable si: equipo ya usado, el partido ya arrancó, o el turno está bloqueado
+    const bloqLoc = usadoLoc || arrancado || bloqueadoTurno;
+    const bloqVis = usadoVis || arrancado || bloqueadoTurno;
     html += `
     <div class="sv-partido ${arrancado?'arrancado':''}">
       <div class="hora">${fechaHora(p.kickoff)}${arrancado?' · ya arrancó 🔒':''}</div>
@@ -926,12 +943,12 @@ function renderZona(cerrada, t){
     </div>`;
   });
 
-  html += `<button class="sv-guardar" id="sv-guardar" ${(!SV.eleccion||cerrada)?'disabled':''}>
-    ${cerrada?'Jornada cerrada':(SV.pickActual?'Actualizar mi pick':'Guardar mi pick')}
+  html += `<button class="sv-guardar" id="sv-guardar" ${(!SV.eleccion||bloqueadoTurno)?'disabled':''}>
+    ${cerrada?'Jornada cerrada':(SV.pickConsumido?'Pick fijo':(SV.pickActual?'Actualizar mi pick':'Guardar mi pick'))}
   </button>`;
   z.innerHTML = html;
 
-  if(!cerrada){
+  if(!bloqueadoTurno){
     z.querySelectorAll(".sv-lado").forEach(el=>{
       if(el.classList.contains("usado") || el.dataset.bloq==='1') return;
       el.addEventListener("click", ()=>{

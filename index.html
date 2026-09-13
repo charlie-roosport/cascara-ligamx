@@ -568,11 +568,15 @@ async function pantallaSurvivor(c){
   }
   SV.deadline = SV.deadlinesPorJornada[SV.jornada];
 
-  // 3. mis tickets del torneo
+  // 3. MIS boletos del torneo (solo los míos, no los del grupo)
   const { data: tickets } = await sb.from("survivor_ticket")
-    .select("*").eq("torneo_id", SV.torneo.id).order("creado_en");
+    .select("*").eq("torneo_id", SV.torneo.id).eq("usuario_id", perfil.id).order("creado_en");
   SV.tickets = tickets || [];
   if(!SV.ticketSel && SV.tickets.length) SV.ticketSel = SV.tickets.find(t=>!t.eliminado)?.id || SV.tickets[0].id;
+  // si el boleto seleccionado ya no es mío (cambió de sesión), reseteo
+  if(SV.ticketSel && !SV.tickets.find(t=>t.id===SV.ticketSel)){
+    SV.ticketSel = SV.tickets.find(t=>!t.eliminado)?.id || SV.tickets[0]?.id || null;
+  }
 
   // 4. partidos de la jornada
   const { data: parts } = await sb.from("partido")

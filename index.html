@@ -1279,8 +1279,22 @@ async function adJugadores(){
 async function adCierre(){
   const cont = $("ad-cont");
   const { data: tor } = await sb.from("torneo").select("id, nombre").eq("activo",true).maybeSingle();
-  const { data: dls } = await sb.from("jornada_deadline").select("jornada, cierre_survivor").eq("torneo_id",tor.id).order("jornada");
+  const { data: dls } = await sb.from("jornada_deadline").select("jornada, cierre_survivor, ajustado_manual").eq("torneo_id",tor.id).order("jornada");
   let opciones = (dls||[]).map(d=>`<option value="${d.jornada}">Jornada ${d.jornada}</option>`).join("");
+
+  // filas para editar deadline a mano (formato datetime-local en hora local)
+  const filasDl = (dls||[]).map(d=>{
+    const dt = new Date(d.cierre_survivor);
+    // datetime-local necesita YYYY-MM-DDTHH:MM en hora local
+    const local = new Date(dt.getTime() - dt.getTimezoneOffset()*60000).toISOString().slice(0,16);
+    return `<div class="ad-fila">
+      <div class="info"><div class="n">Jornada ${d.jornada}</div>
+        <div class="m">${d.ajustado_manual?'ajustado a mano':'automático'}</div></div>
+      <input type="datetime-local" class="ad-inp" style="width:auto" value="${local}" data-j="${d.jornada}">
+      <button class="ad-mini gris" data-guardar-dl="${d.jornada}">guardar</button>
+    </div>`;
+  }).join("");
+
   cont.innerHTML = `
   <div class="ad-bloque">
     <h3>Cerrar jornada de Survivor</h3>
@@ -1290,6 +1304,11 @@ async function adCierre(){
       <button class="ad-btn" id="ad-cerrar">Cerrar jornada</button>
     </div>
     <div class="ad-log oculto" id="ad-log-cierre"></div>
+  </div>
+  <div class="ad-bloque">
+    <h3>Ajustar cierre de Survivor por jornada</h3>
+    <div class="d">Por default el cierre es 1h antes del primer partido de la jornada. Aquí lo puedes mover a mano. Un cierre ajustado a mano ya no se sobreescribe al reimportar el calendario.</div>
+    ${filasDl || '<div class="d">No hay jornadas configuradas.</div>'}
   </div>`;
 
   const bc = $("ad-cerrar");
@@ -1304,6 +1323,22 @@ async function adCierre(){
     const perdieron = filas.filter(f=>f.perdio_vida).length;
     const elim = filas.filter(f=>f.eliminado).length;
     log.textContent = `Jornada ${j} cerrada ✓\nBoletos procesados: ${filas.length}\nPerdieron vida: ${perdieron}\nEliminados: ${elim}`;
+  });
+
+  // guardar deadline manual
+  cont.querySelectorAll("[data-guardar-dl]").forEach(b=>{
+    b.addEventListener("click", async ()=>{
+      const j = parseInt(b.dataset.guardarDl);
+      const inp = cont.querySelector(`input[data-j="${j}"]`);
+      if(!inp || !inp.value) return;
+      const iso = new Date(inp.value).toISOString();  // interpreta como hora local -> UTC
+      b.textContent = "…";
+      const { error } = await sb.from("jornada_deadline")
+        .update({ cierre_survivor: iso, ajustado_manual: true })
+        .eq("torneo_id", tor.id).eq("jornada", j);
+      if(error){ alert("Error: "+error.message); b.textContent="guardar"; return; }
+      adCierre();
+    });
   });
 }
 

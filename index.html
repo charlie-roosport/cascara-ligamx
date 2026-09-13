@@ -233,6 +233,46 @@
   .sv-usado-item .jlbl{font-size:10px;color:var(--pizarra)}
   .sv-usados .nada{font-size:13px;color:var(--pizarra)}
 
+  /* toggle Mis picks / El grupo */
+  .sv-toggle{display:flex;gap:4px;background:rgba(6,37,26,.5);border:1px solid var(--linea);
+    border-radius:999px;padding:4px;margin:14px 0 4px}
+  .sv-toggle button{flex:1;padding:9px;border:none;border-radius:999px;cursor:pointer;
+    background:transparent;color:var(--pizarra);
+    font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;letter-spacing:.02em}
+  .sv-toggle button.activa{background:var(--lima);color:#06251A}
+
+  /* tabla de vivos */
+  .grp-seccion{margin-bottom:22px}
+  .grp-seccion h3{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:19px;margin:6px 0 10px}
+  .grp-fila{display:flex;align-items:center;gap:10px;padding:10px 12px;
+    background:rgba(15,78,58,.55);border:1px solid var(--linea);border-radius:10px;margin-bottom:6px}
+  .grp-fila.muerto{opacity:.5}
+  .grp-pos{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;
+    color:var(--pizarra);width:24px;text-align:center}
+  .grp-fila .quien{flex:1;min-width:0}
+  .grp-fila .apodo{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .grp-fila .duenio{font-size:12px;color:var(--pizarra)}
+  .grp-vidas{display:flex;gap:2px}
+  .grp-vidas .v{width:13px;height:13px}
+  .grp-fila .elim{font-size:11px;color:var(--coral);font-weight:600}
+
+  /* picks del grupo por partido */
+  .grp-partido{background:rgba(15,78,58,.55);border:1px solid var(--linea);
+    border-radius:10px;padding:12px;margin-bottom:8px}
+  .grp-partido .mt{display:flex;align-items:center;justify-content:center;gap:8px;
+    font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;margin-bottom:4px}
+  .grp-partido .mini{width:22px;height:22px;object-fit:contain;vertical-align:middle}
+  .grp-partido .hr{font-size:11px;color:var(--pizarra);text-align:center;margin-bottom:10px}
+  .grp-locked{text-align:center;color:var(--pizarra);font-size:13px;padding:6px 0}
+  .grp-locked .cand{font-size:20px;display:block;margin-bottom:4px;opacity:.6}
+  .grp-picks-lista{display:flex;flex-wrap:wrap;gap:6px}
+  .grp-pick-chip{display:flex;align-items:center;gap:5px;font-size:12px;
+    background:rgba(6,37,26,.5);border:1px solid var(--linea);border-radius:999px;padding:4px 10px}
+  .grp-pick-chip .eq{font-weight:600}
+  .grp-conteo{display:flex;gap:12px;justify-content:center;margin-top:8px;font-size:12px;color:var(--pizarra)}
+  .grp-conteo b{color:var(--hueso)}
+
   /* partidos para pickear */
   .sv-instru{font-size:14px;color:var(--pizarra);margin:16px 0 10px}
   .sv-partido{
@@ -490,7 +530,8 @@ function cambiaTab(nombre){
 // =====================================================================
 const SV = { torneo:null, jornada:1, deadline:null, tickets:[], ticketSel:null,
              partidos:[], equiposUsados:{}, pickActual:null, eleccion:null,
-             jornadaManual:null, jornadasDisponibles:[], deadlinesPorJornada:{} };
+             jornadaManual:null, jornadasDisponibles:[], deadlinesPorJornada:{},
+             vista:'mis', listaUsados:[] };
 
 const svgVida = (llena) => llena
   ? `<svg class="vida" viewBox="0 0 24 24" fill="var(--lima)" stroke="var(--lima)" stroke-width="2"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z"/></svg>`
@@ -585,6 +626,21 @@ function render(c){
     <button id="j-sig" ${haySig?'':'disabled'}>›</button>
   </div>`;
 
+  // toggle Mis picks / El grupo
+  html += `
+  <div class="sv-toggle">
+    <button data-vista="mis" class="${SV.vista==='mis'?'activa':''}">Mis picks</button>
+    <button data-vista="grupo" class="${SV.vista==='grupo'?'activa':''}">El grupo</button>
+  </div>`;
+
+  if(SV.vista === 'grupo'){
+    html += `<div id="sv-grupo"><p style="color:var(--pizarra)">Cargando grupo…</p></div>`;
+    c.innerHTML = html;
+    conectarControles(c, cerrada);
+    renderGrupo();
+    return;
+  }
+
   // carrusel de boletos
   html += `<div class="sv-tickets">`;
   SV.tickets.forEach(tk => {
@@ -620,14 +676,27 @@ function render(c){
   html += `<div id="sv-zona"></div>`;
   c.innerHTML = html;
 
-  // eventos de tickets
+  c.innerHTML = html;
+  conectarControles(c, cerrada);
+  renderZona(cerrada, t);
+  arrancaReloj();
+}
+
+// listeners compartidos por ambas vistas (mis picks / grupo)
+function conectarControles(c, cerrada){
+  // toggle de vista
+  c.querySelectorAll(".sv-toggle button").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      if(SV.vista !== b.dataset.vista){ SV.vista = b.dataset.vista; render($("contenido")); }
+    });
+  });
+  // selección de boleto
   c.querySelectorAll(".sv-ticket").forEach(el=>{
     el.addEventListener("click", async ()=>{
       SV.ticketSel = el.dataset.ticket;
       await pantallaSurvivor($("contenido"));
     });
   });
-
   // navegación de jornadas
   const jp = $("j-prev"), js2 = $("j-sig");
   if(jp) jp.addEventListener("click", async ()=>{
@@ -638,9 +707,110 @@ function render(c){
     const i = SV.jornadasDisponibles.indexOf(SV.jornada);
     if(i < SV.jornadasDisponibles.length-1){ SV.jornadaManual = SV.jornadasDisponibles[i+1]; await pantallaSurvivor($("contenido")); }
   });
+}
 
-  renderZona(cerrada, t);
-  arrancaReloj();
+// =====================================================================
+//  VISTA DE GRUPO: tabla de vivos + picks del grupo (con candado)
+// =====================================================================
+async function renderGrupo(){
+  const cont = $("sv-grupo");
+  if(!cont) return;
+
+  // 1. TABLA DE VIVOS: todos los boletos del torneo (RLS deja ver los básicos)
+  const { data: tks } = await sb.from("survivor_ticket")
+    .select("id, apodo, vidas, vidas_iniciales, eliminado, usuario_id, "+
+            "duenio:usuario_id(nombre)")
+    .eq("torneo_id", SV.torneo.id);
+  // ordenar: vivos primero, por vidas desc; muertos al final
+  const orden = (tks||[]).slice().sort((a,b)=>{
+    if(a.eliminado !== b.eliminado) return a.eliminado ? 1 : -1;
+    return b.vidas - a.vidas;
+  });
+
+  let html = `<div class="grp-seccion"><h3>Quién sigue vivo</h3>`;
+  if(orden.length === 0){
+    html += `<div class="grp-locked">Aún no hay boletos en el torneo.</div>`;
+  } else {
+    let pos = 0, ultVidas = null, ultElim = null;
+    orden.forEach((tk, i)=>{
+      // posición: mismo número si empatan en vidas y estado
+      if(tk.vidas !== ultVidas || tk.eliminado !== ultElim){ pos = i+1; ultVidas = tk.vidas; ultElim = tk.eliminado; }
+      const vidas = Array.from({length: tk.vidas_iniciales}, (_,k)=>
+        `<span class="v">${svgVidaMini(k < tk.vidas)}</span>`).join("");
+      html += `
+      <div class="grp-fila ${tk.eliminado?'muerto':''}">
+        <div class="grp-pos">${tk.eliminado?'—':pos}</div>
+        <div class="quien">
+          <div class="apodo">${escapa(tk.apodo)}</div>
+          <div class="duenio">${escapa(tk.duenio?.nombre||'—')}</div>
+        </div>
+        ${tk.eliminado
+          ? `<div class="elim">Eliminado${tk.eliminado_en_jornada?' J'+tk.eliminado_en_jornada:''}</div>`
+          : `<div class="grp-vidas">${vidas}</div>`}
+      </div>`;
+    });
+  }
+  html += `</div>`;
+
+  // 2. PICKS DEL GRUPO de la jornada actual (por partido, con candado)
+  html += `<div class="grp-seccion"><h3>Picks de la jornada ${SV.jornada}</h3>`;
+  // traer picks de survivor de esta jornada; la RLS oculta los de partidos no cerrados
+  const partidoIds = SV.partidos.map(p=>p.id);
+  let picksPorPartido = {};
+  if(partidoIds.length){
+    const { data: gpicks } = await sb.from("survivor_pick")
+      .select("partido_id, equipo_id, ticket_id, "+
+              "eq:equipo_id(nombre,nombre_corto,escudo_url,color), "+
+              "tk:ticket_id(apodo)")
+      .eq("jornada", SV.jornada).in("partido_id", partidoIds);
+    (gpicks||[]).forEach(p=>{
+      (picksPorPartido[p.partido_id] = picksPorPartido[p.partido_id] || []).push(p);
+    });
+  }
+
+  SV.partidos.forEach(p=>{
+    const cerrado = new Date(p.kickoff) <= new Date();
+    const escLoc = escudoMini(p.loc), escVis = escudoMini(p.vis);
+    html += `<div class="grp-partido">
+      <div class="mt">${escLoc} ${escapa(p.loc.nombre_corto||p.loc.nombre)} <span style="color:var(--pizarra)">vs</span> ${escapa(p.vis.nombre_corto||p.vis.nombre)} ${escVis}</div>
+      <div class="hr">${fechaHora(p.kickoff)}</div>`;
+    if(!cerrado){
+      html += `<div class="grp-locked"><span class="cand">🔒</span>Los picks se revelan cuando arranca el partido</div>`;
+    } else {
+      const lista = picksPorPartido[p.id] || [];
+      if(lista.length === 0){
+        html += `<div class="grp-locked">Nadie eligió en este partido</div>`;
+      } else {
+        // conteo por equipo
+        let cLoc=0, cVis=0;
+        html += `<div class="grp-picks-lista">`;
+        lista.forEach(pk=>{
+          if(pk.equipo_id === p.equipo_local_id) cLoc++; else if(pk.equipo_id === p.equipo_visitante_id) cVis++;
+          html += `<div class="grp-pick-chip">${escudoMini(pk.eq)}<span class="eq">${escapa(pk.tk?.apodo||'—')}</span></div>`;
+        });
+        html += `</div>
+        <div class="grp-conteo">
+          <span><b>${cLoc}</b> ${escapa(p.loc.nombre_corto||'L')}</span>
+          <span><b>${cVis}</b> ${escapa(p.vis.nombre_corto||'V')}</span>
+        </div>`;
+      }
+    }
+    html += `</div>`;
+  });
+  html += `</div>`;
+
+  cont.innerHTML = html;
+}
+
+function svgVidaMini(llena){
+  return llena
+    ? `<svg viewBox="0 0 24 24" width="13" height="13" fill="var(--lima)" stroke="var(--lima)" stroke-width="2"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z"/></svg>`
+    : `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="var(--pizarra)" stroke-width="2"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z"/></svg>`;
+}
+function escudoMini(eq){
+  if(eq && eq.escudo_url && String(eq.escudo_url).startsWith('http'))
+    return `<img class="mini" src="${eq.escudo_url}" alt="${escapa(eq.nombre)}">`;
+  return `<span class="mini-mono" style="display:inline-flex;width:22px;height:22px;background:${(eq&&eq.color)||'#8A9490'};font-size:9px">${escapa((eq&&eq.nombre_corto)||'?')}</span>`;
 }
 
 function renderZona(cerrada, t){

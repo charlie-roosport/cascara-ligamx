@@ -57,14 +57,27 @@
   .marca p{color:var(--pizarra);margin-top:10px;font-size:14px;line-height:1.5}
 
   /* Powered by Cáscara (socio tech) */
-  .powered{display:flex;align-items:center;justify-content:center;gap:8px;
-    margin-top:28px;color:var(--pizarra);font-size:12px;opacity:.85}
-  .powered .logo-cascara-mini{height:34px;width:auto;
+  .powered{display:flex;align-items:center;justify-content:center;gap:10px;
+    margin-top:28px;color:var(--pizarra);font-size:13px;opacity:.9}
+  .powered .logo-cascara-mini{height:60px;width:auto;
     filter:drop-shadow(0 2px 6px rgba(0,0,0,.4))}
+
+  /* franja Liga MX en login */
+  .franja-liga{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .franja-liga-logo{height:40px;width:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.4))}
+  .franja-liga-txt{font-family:'Barlow Condensed',sans-serif;font-weight:700;
+    font-size:24px;color:var(--hueso);line-height:1}
 
   /* logo Roo en la barra superior */
   .logo-roo-top{height:34px;width:auto;display:block;
     filter:drop-shadow(0 2px 8px rgba(0,0,0,.4))}
+
+  /* pie fijo de Cáscara (todas las pantallas post-login) */
+  .pie-cascara{display:flex;align-items:center;justify-content:center;gap:8px;
+    padding:8px 0;border-top:1px solid var(--linea);
+    background:rgba(6,37,26,.55);backdrop-filter:blur(6px);
+    color:var(--pizarra);font-size:11px}
+  .pie-cascara img{height:34px;width:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.4))}
 
   /* pie de colaboración en Cuenta */
   .colab-pie{margin-top:28px;padding-top:20px;border-top:1px solid var(--linea);text-align:center}
@@ -73,7 +86,7 @@
   .colab-txt{color:var(--pizarra);font-size:11px;margin-top:10px}
 
   /* logo Liga MX junto al torneo (se muestra cuando exista el archivo) */
-  .logo-liga{height:18px;width:auto;vertical-align:middle;margin-right:6px}
+  .logo-liga{height:28px;width:auto;vertical-align:middle;margin-right:8px}
 
   .campo{margin-bottom:14px}
   .campo label{display:block;font-size:13px;color:var(--pizarra);margin-bottom:6px}
@@ -414,7 +427,11 @@
     <div class="wm-fallback" style="display:none">
       <div class="kicker cond">ROO SPORT</div>
     </div>
-    <h1 class="titulo-quiniela">Quiniela<br>Liga MX</h1>
+    <div class="franja-liga">
+      <img src="https://jusjfukucehsrtechmyw.supabase.co/storage/v1/object/public/marca/ligamx.svg?v=2"
+           alt="Liga MX" class="franja-liga-logo" onerror="this.style.display='none'">
+      <span class="franja-liga-txt">Edición Liga MX · Quiniela</span>
+    </div>
     <p id="sub-auth">Entra con tu correo para hacer tus picks, ver tus vidas y seguir los rankings de la temporada.</p>
   </div>
 
@@ -465,6 +482,13 @@
   <main class="contenido" id="contenido">
     <!-- Cada pestaña llena esto. Por ahora, placeholders. -->
   </main>
+
+  <div class="pie-cascara">
+    <span>Powered by</span>
+    <img src="https://jusjfukucehsrtechmyw.supabase.co/storage/v1/object/public/marca/cascara.png?v=2"
+         alt="Cáscara Sports" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+    <b style="display:none">Cáscara Sports</b>
+  </div>
 
   <nav class="tabs" id="tabs">
     <button class="tab activa" data-tab="survivor">

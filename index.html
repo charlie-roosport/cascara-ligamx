@@ -39,7 +39,13 @@
     flex:1;display:flex;flex-direction:column;justify-content:center;
     padding:32px 24px;max-width:440px;width:100%;margin:0 auto;
   }
-  .marca{margin-bottom:40px}
+  .marca{margin-bottom:36px}
+  .logo-roo{width:100%;max-width:340px;height:auto;display:block;margin-bottom:6px;
+    filter:drop-shadow(0 6px 20px rgba(0,0,0,.45))}
+  .titulo-quiniela{
+    font-family:'Barlow Condensed',sans-serif;font-weight:700;
+    font-size:30px;line-height:.98;margin-top:6px;color:var(--hueso);
+  }
   .marca .kicker{
     font-family:'Barlow Condensed',sans-serif;font-weight:600;
     letter-spacing:.04em;color:var(--lima);font-size:15px;
@@ -49,6 +55,25 @@
     font-size:44px;line-height:.98;margin-top:2px;
   }
   .marca p{color:var(--pizarra);margin-top:10px;font-size:14px;line-height:1.5}
+
+  /* Powered by Cáscara (socio tech) */
+  .powered{display:flex;align-items:center;justify-content:center;gap:8px;
+    margin-top:28px;color:var(--pizarra);font-size:12px;opacity:.85}
+  .powered .logo-cascara-mini{height:34px;width:auto;
+    filter:drop-shadow(0 2px 6px rgba(0,0,0,.4))}
+
+  /* logo Roo en la barra superior */
+  .logo-roo-top{height:34px;width:auto;display:block;
+    filter:drop-shadow(0 2px 8px rgba(0,0,0,.4))}
+
+  /* pie de colaboración en Cuenta */
+  .colab-pie{margin-top:28px;padding-top:20px;border-top:1px solid var(--linea);text-align:center}
+  .colab-pie img{height:38px;width:auto;vertical-align:middle;filter:drop-shadow(0 2px 8px rgba(0,0,0,.4))}
+  .colab-pie span{color:var(--pizarra);font-size:16px;margin:0 12px;vertical-align:middle}
+  .colab-txt{color:var(--pizarra);font-size:11px;margin-top:10px}
+
+  /* logo Liga MX junto al torneo (se muestra cuando exista el archivo) */
+  .logo-liga{height:18px;width:auto;vertical-align:middle;margin-right:6px}
 
   .campo{margin-bottom:14px}
   .campo label{display:block;font-size:13px;color:var(--pizarra);margin-bottom:6px}
@@ -327,6 +352,9 @@
     padding:12px;margin-bottom:10px;backdrop-filter:blur(2px);
   }
   .sv-partido .hora{font-size:12px;color:var(--pizarra);margin-bottom:10px;text-align:center}
+  .sv-cd{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:13px;
+    color:var(--lima);text-align:center;margin-top:-6px;margin-bottom:10px;letter-spacing:.02em}
+  .sv-cd.cd-cerrado{color:var(--pizarra)}
   .sv-lados{display:flex;gap:8px}
   .sv-lado{
     flex:1;padding:12px 8px;border-radius:10px;cursor:pointer;text-align:center;
@@ -380,8 +408,13 @@
 <!-- ===================== LOGIN ===================== -->
 <section id="auth">
   <div class="marca">
-    <div class="kicker cond">CÁSCARA SPORTS</div>
-    <h1>Liga MX<br>Quiniela</h1>
+    <img src="https://jusjfukucehsrtechmyw.supabase.co/storage/v1/object/public/marca/roo.png?v=2"
+         alt="Roo Sport" class="logo-roo"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+    <div class="wm-fallback" style="display:none">
+      <div class="kicker cond">ROO SPORT</div>
+    </div>
+    <h1 class="titulo-quiniela">Quiniela<br>Liga MX</h1>
     <p id="sub-auth">Entra con tu correo para hacer tus picks, ver tus vidas y seguir los rankings de la temporada.</p>
   </div>
 
@@ -406,12 +439,23 @@
     <span id="txt-cambia">¿No tienes cuenta?</span>
     <button id="btn-cambia">Regístrate</button>
   </div>
+
+  <div class="powered">
+    <span>Powered by</span>
+    <img src="https://jusjfukucehsrtechmyw.supabase.co/storage/v1/object/public/marca/cascara.png?v=2"
+         alt="Cáscara Sports" class="logo-cascara-mini"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='inline'">
+    <b style="display:none">Cáscara Sports</b>
+  </div>
 </section>
 
 <!-- ===================== APP ===================== -->
 <section id="app">
   <header class="top">
-    <div class="wm">Cáscara <span>MX</span></div>
+    <img src="https://jusjfukucehsrtechmyw.supabase.co/storage/v1/object/public/marca/roo.png?v=2"
+         alt="Roo Sport" class="logo-roo-top"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+    <div class="wm" style="display:none">Roo <span>Sport</span></div>
     <div class="quien">
       <span id="mi-nombre">—</span>
       <button id="btn-salir">Cerrar sesión</button>
@@ -674,7 +718,11 @@ function render(c){
   let html = `
   <div class="sv-cabecera">
     <h2>Survivor</h2>
-    <div class="jornada">${SV.torneo.nombre} · Jornada ${SV.jornada}</div>
+    <div class="jornada">
+      <img src="https://jusjfukucehsrtechmyw.supabase.co/storage/v1/object/public/marca/ligamx.svg?v=2"
+           alt="Liga MX" class="logo-liga" onerror="this.style.display='none'">
+      ${SV.torneo.nombre} · Jornada ${SV.jornada}
+    </div>
     <div class="sv-reloj ${cerrada?'cerrado':''}">
       <span class="punto"></span><b id="sv-cuenta">${cerrada?'Jornada cerrada':textoReloj(SV.deadline)}</b>
     </div>
@@ -928,7 +976,8 @@ function renderZona(cerrada, t){
     const bloqVis = usadoVis || arrancado || bloqueadoTurno;
     html += `
     <div class="sv-partido ${arrancado?'arrancado':''}">
-      <div class="hora">${fechaHora(p.kickoff)}${arrancado?' · ya arrancó 🔒':''}</div>
+      <div class="hora">${fechaHora(p.kickoff)}</div>
+      <div class="sv-cd ${arrancado?'cd-cerrado':''}" data-countdown="${p.kickoff}" data-prefijo="arranca en " data-cerrado-label="ya arrancó 🔒"></div>
       <div class="sv-lados">
         <div class="sv-lado ${elLoc?'elegido':''} ${bloqLoc?'usado':''}"
              data-eq="${p.equipo_local_id}" data-part="${p.id}" data-bloq="${bloqLoc?1:0}">
@@ -960,6 +1009,7 @@ function renderZona(cerrada, t){
     const g = $("sv-guardar");
     if(g) g.addEventListener("click", guardarPick);
   }
+  arrancaCountdowns();
 }
 
 async function guardarPick(){
@@ -1024,6 +1074,41 @@ function fechaHora(iso){
   const f = new Date(iso);
   return f.toLocaleDateString("es-MX",{weekday:"short",day:"numeric",month:"short"}) +
     " · " + f.toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"});
+}
+
+// ---- COUNTDOWN GENÉRICO POR PARTIDO ----
+// Cualquier elemento con data-countdown="<ISO>" se actualiza cada segundo.
+// Reutilizable en Survivor, Jornada y Liguilla.
+function textoCuenta(ms){
+  if(ms <= 0) return "";
+  const d = Math.floor(ms/86400000), h = Math.floor(ms%86400000/3600000),
+        m = Math.floor(ms%3600000/60000), s = Math.floor(ms%60000/1000);
+  if(d>0) return `${d}d ${h}h ${m}m`;
+  if(h>0) return `${h}h ${m}m ${s}s`;
+  if(m>0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+let cdInt = null;
+function arrancaCountdowns(){
+  if(cdInt) clearInterval(cdInt);
+  const tick = ()=>{
+    const els = document.querySelectorAll("[data-countdown]");
+    if(!els.length){ clearInterval(cdInt); cdInt=null; return; }
+    const ahora = Date.now();
+    els.forEach(el=>{
+      const fin = new Date(el.dataset.countdown).getTime();
+      const ms = fin - ahora;
+      if(ms <= 0){
+        el.textContent = el.dataset.cerradoLabel || "cerrado";
+        el.classList.add("cd-cerrado");
+      } else {
+        el.textContent = (el.dataset.prefijo||"") + textoCuenta(ms);
+        el.classList.remove("cd-cerrado");
+      }
+    });
+  };
+  tick();
+  cdInt = setInterval(tick, 1000);
 }
 function escapa(s){ const d=document.createElement("div"); d.textContent=s??""; return d.innerHTML; }
 
@@ -1115,6 +1200,12 @@ async function pantallaCuenta(c){
 
   // ---- salir ----
   html += `<button class="ct-salir" id="ct-salir">Cerrar sesión</button>`;
+  html += `<div class="colab-pie">
+    <img src="https://jusjfukucehsrtechmyw.supabase.co/storage/v1/object/public/marca/roo.png?v=2" alt="Roo Sport" onerror="this.style.display='none'">
+    <span>×</span>
+    <img src="https://jusjfukucehsrtechmyw.supabase.co/storage/v1/object/public/marca/cascara.png?v=2" alt="Cáscara Sports" onerror="this.style.display='none'">
+    <div class="colab-txt">Una colaboración Roo Sport × Cáscara Sports</div>
+  </div>`;
 
   c.innerHTML = html;
 

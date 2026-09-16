@@ -414,6 +414,61 @@
   .sv-navj button:disabled{color:var(--pizarra);opacity:.4;cursor:default}
   .sv-navj .jinfo{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px;text-align:center}
   .sv-navj .jinfo small{display:block;font-family:'Inter',sans-serif;font-weight:400;font-size:11px;color:var(--pizarra)}
+
+  /* ---------- JORNADA + ACUMULADA ---------- */
+  .qn-instru{font-size:14px;color:var(--pizarra);margin:14px 0 12px;line-height:1.5}
+  .qn-estrella-lbl{color:var(--lima);font-weight:600}
+  .qn-partido{background:rgba(15,78,58,.72);border:1px solid var(--linea);border-radius:var(--radio);
+    padding:12px;margin-bottom:10px;backdrop-filter:blur(2px)}
+  .qn-partido.es-estrella{border-color:rgba(182,255,60,.55);box-shadow:0 0 0 1px rgba(182,255,60,.15) inset}
+  .qn-partido.cerrado{opacity:.65}
+  .qn-part-top{display:flex;align-items:center;gap:8px;margin-bottom:10px;min-height:18px}
+  .qn-star{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;
+    color:var(--lima);letter-spacing:.04em}
+  .qn-flag{font-size:11px;font-weight:600;padding:2px 7px;border-radius:999px}
+  .qn-flag.posp{background:rgba(255,180,60,.16);color:#FFC93C}
+  .qn-cd{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-weight:600;
+    font-size:12px;color:var(--lima);letter-spacing:.02em}
+  .qn-cd.cd-cerrado{color:var(--pizarra)}
+  .qn-matchup{display:flex;align-items:center;gap:8px}
+  .qn-eq{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+  .qn-eq span{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .qn-eq .mini,.qn-eq .mini-mono{width:26px;height:26px}
+  .qn-lev-box{display:flex;gap:5px;flex:0 0 auto}
+  .qn-lev{width:38px;height:44px;border-radius:9px;border:1.5px solid var(--linea);
+    background:rgba(11,61,46,.55);color:var(--hueso);cursor:pointer;
+    font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px}
+  .qn-lev.sel{background:var(--lima);border-color:var(--lima);color:#06251A}
+  .qn-lev:disabled{opacity:.4;cursor:not-allowed}
+  .qn-goles{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px;
+    padding-top:10px;border-top:1px solid var(--linea)}
+  .qn-goles-lbl{font-size:12px;color:var(--lima);font-weight:600}
+  .qn-num{width:64px;padding:8px;border-radius:8px;background:rgba(6,37,26,.5);
+    border:1px solid var(--linea);color:var(--hueso);font-size:16px;text-align:center;font-family:inherit}
+  .qn-num:disabled{opacity:.4}
+  .qn-total{background:rgba(15,78,58,.72);border:1px dashed rgba(182,255,60,.4);border-radius:var(--radio);
+    padding:14px;margin:6px 0 10px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .qn-total-lbl{font-size:13px;color:var(--hueso);line-height:1.4}
+  .qn-hint{color:var(--pizarra);font-size:11px}
+  .qn-num-big{width:80px;padding:10px;border-radius:8px;background:rgba(6,37,26,.5);
+    border:1px solid var(--linea);color:var(--hueso);font-size:20px;text-align:center;
+    font-family:'Barlow Condensed',sans-serif;font-weight:700}
+  .qn-num-big:disabled{opacity:.4}
+  .qn-rank{border:1px solid var(--linea);border-radius:var(--radio);overflow:hidden}
+  .qn-rank-head,.qn-rank-fila{display:grid;grid-template-columns:32px 1fr 44px auto;
+    align-items:center;gap:8px;padding:10px 12px}
+  .qn-rank-head{background:rgba(6,37,26,.5);font-size:11px;color:var(--pizarra);
+    text-transform:uppercase;letter-spacing:.04em}
+  .qn-rank-fila{border-top:1px solid var(--linea);font-size:14px}
+  .qn-rank-fila.yo{background:rgba(182,255,60,.1)}
+  .qn-rank-fila .c-pos{font-family:'Barlow Condensed',sans-serif;font-weight:700;
+    font-size:16px;color:var(--pizarra);text-align:center}
+  .qn-rank-fila .c-nom{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .qn-rank-fila .c-pts{font-family:'Barlow Condensed',sans-serif;font-weight:700;
+    font-size:18px;color:var(--lima);text-align:center}
+  .qn-rank-fila .c-des{font-size:11px;color:var(--pizarra);white-space:nowrap;text-align:right}
+  .qn-rank-head .c-pts,.qn-rank-head .c-des{text-align:right}
 </style>
 </head>
 <body>
@@ -636,11 +691,11 @@ function cambiaTab(nombre){
     t.classList.toggle("activa", t.dataset.tab === nombre));
   const c = $("contenido");
   if(nombre === "survivor"){ pantallaSurvivor(c); return; }
+  if(nombre === "quiniela"){ pantallaQuiniela(c); return; }
   if(nombre === "cuenta"){ pantallaCuenta(c); return; }
   if(nombre === "admin"){ pantallaAdmin(c); return; }
   // Las demás siguen como placeholder hasta su capa
   const titulos = {
-    quiniela: ["Jornada + Acumulada", "Aquí harás tus picks L/E/V de la jornada y verás la tabla."],
     liguilla: ["Liguilla", "Aquí llenarás tu bracket y tus pronósticos ronda por ronda."]
   };
   const [t, d] = titulos[nombre];
@@ -1277,6 +1332,7 @@ async function pantallaAdmin(c){
     <button data-s="calendario" class="${AD.seccion==='calendario'?'activa':''}">Calendario</button>
     <button data-s="jugadores" class="${AD.seccion==='jugadores'?'activa':''}">Jugadores</button>
     <button data-s="cierre" class="${AD.seccion==='cierre'?'activa':''}">Cierre</button>
+    <button data-s="jornada" class="${AD.seccion==='jornada'?'activa':''}">Jornada</button>
   </div>
   <div id="ad-cont"></div>`;
   c.innerHTML = html;
@@ -1285,6 +1341,7 @@ async function pantallaAdmin(c){
   });
   if(AD.seccion==='calendario') adCalendario();
   else if(AD.seccion==='jugadores') adJugadores();
+  else if(AD.seccion==='jornada') adJornadaSetup();
   else adCierre();
 }
 
@@ -1456,6 +1513,512 @@ async function adCierre(){
     });
   });
 }
+
+// ##### INICIO MODALIDAD JORNADA+ACUMULADA #####
+// =====================================================================
+//  PANTALLA JORNADA + ACUMULADA  (modalidad jornada_acumulada)
+// =====================================================================
+const QN = { torneo:null, jornada:1, partidos:[], jornadasDisp:[],
+             insc:null, misPicks:{}, misGoles:{}, totalJornada:null,
+             vista:'picks', etapas:[], etapaSel:null, ranJornada:null };
+
+async function pantallaQuiniela(c){
+  c.innerHTML = `<p style="color:var(--pizarra)">Cargando…</p>`;
+
+  // torneo activo
+  if(!QN.torneo){
+    const { data: tor } = await sb.from("torneo").select("*").eq("activo",true).maybeSingle();
+    if(!tor){ c.innerHTML = `<div class="sv-vacio">Todavía no hay un torneo activo.</div>`; return; }
+    QN.torneo = tor;
+  }
+
+  // ¿estoy inscrito? (para saber si puedo capturar)
+  const { data: insc } = await sb.from("inscripcion")
+    .select("*").eq("torneo_id",QN.torneo.id).eq("usuario_id",perfil.id)
+    .eq("modalidad","jornada_acumulada").maybeSingle();
+  QN.insc = insc || null;
+
+  // jornadas disponibles = las que tienen partidos
+  const { data: js } = await sb.from("partido").select("jornada")
+    .eq("torneo_id",QN.torneo.id).order("jornada");
+  QN.jornadasDisp = [...new Set((js||[]).map(x=>x.jornada))];
+  if(QN.jornadasDisp.length===0){ c.innerHTML=`<div class="sv-vacio">Aún no hay partidos cargados.</div>`; return; }
+
+  // jornada por default: la primera con algún partido sin arrancar; si todas arrancaron, la última
+  if(!QN._jornadaTocada){
+    const ahora = new Date();
+    let elegida = null;
+    for(const j of QN.jornadasDisp){
+      const { data: pp } = await sb.from("partido").select("kickoff")
+        .eq("torneo_id",QN.torneo.id).eq("jornada",j).order("kickoff").limit(1);
+      if(pp && pp[0] && new Date(pp[0].kickoff) > ahora){ elegida = j; break; }
+    }
+    QN.jornada = elegida || QN.jornadasDisp[QN.jornadasDisp.length-1];
+  }
+
+  // partidos de la jornada
+  const { data: parts } = await sb.from("partido")
+    .select("id, jornada, kickoff, es_estrella, pospuesto, bloqueado_manual, goles_local, goles_visitante, status, equipo_local_id, equipo_visitante_id, "+
+            "loc:equipo_local_id(nombre,nombre_corto,escudo_url,color), vis:equipo_visitante_id(nombre,nombre_corto,escudo_url,color)")
+    .eq("torneo_id",QN.torneo.id).eq("jornada",QN.jornada).order("kickoff");
+  QN.partidos = parts || [];
+
+  // mis picks L/E/V de la jornada
+  const pids = QN.partidos.map(p=>p.id);
+  QN.misPicks = {}; QN.misGoles = {}; QN.totalJornada = null;
+  if(pids.length){
+    const { data: qp } = await sb.from("quiniela_pick")
+      .select("partido_id, pronostico").eq("usuario_id",perfil.id)
+      .eq("torneo_id",QN.torneo.id).in("partido_id",pids);
+    (qp||[]).forEach(r=> QN.misPicks[r.partido_id]=r.pronostico);
+  }
+  // mis goles de estrellas + total de jornada (tiebreaker tipo jornada)
+  const { data: tb } = await sb.from("tiebreaker_pick")
+    .select("partido_id, pred_goles_totales").eq("usuario_id",perfil.id)
+    .eq("torneo_id",QN.torneo.id).eq("tipo","jornada").eq("jornada",QN.jornada);
+  (tb||[]).forEach(r=>{
+    if(r.partido_id) QN.misGoles[r.partido_id]=r.pred_goles_totales;
+    else QN.totalJornada = r.pred_goles_totales;
+  });
+
+  renderQuiniela(c);
+}
+
+function renderQuiniela(c){
+  let html = `
+  <div class="sv-cabecera">
+    <h2>Jornada</h2>
+    <div class="jornada">
+      <img src="https://jusjfukucehsrtechmyw.supabase.co/storage/v1/object/public/marca/ligamx.svg?v=2"
+           alt="Liga MX" class="logo-liga" onerror="this.style.display='none'">
+      ${escapa(QN.torneo.nombre)} · Jornada ${QN.jornada}
+    </div>
+  </div>`;
+
+  // navegador de jornadas
+  const idx = QN.jornadasDisp.indexOf(QN.jornada);
+  html += `
+  <div class="sv-navj">
+    <button id="qn-prev" ${idx>0?'':'disabled'}>‹</button>
+    <div class="jinfo">Jornada ${QN.jornada}<small>${QN.partidos.length} partidos</small></div>
+    <button id="qn-sig" ${idx<QN.jornadasDisp.length-1?'':'disabled'}>›</button>
+  </div>`;
+
+  // toggle Picks / Tabla
+  html += `
+  <div class="sv-toggle">
+    <button data-qv="picks" class="${QN.vista==='picks'?'activa':''}">Mis picks</button>
+    <button data-qv="tabla" class="${QN.vista==='tabla'?'activa':''}">Tablas</button>
+  </div>`;
+
+  if(QN.vista==='tabla'){
+    html += `<div id="qn-tabla"><p style="color:var(--pizarra)">Cargando tabla…</p></div>`;
+    c.innerHTML = html;
+    conectarQnControles(c);
+    renderTablas();
+    return;
+  }
+
+  // Vista de captura
+  if(!QN.insc){
+    html += `<div class="sv-vacio">No estás inscrito en Jornada + Acumulada.<br><br>
+      <button class="ct-btn" onclick="cambiaTab('cuenta')">Inscribirme en Cuenta</button></div>`;
+    c.innerHTML = html; conectarQnControles(c); return;
+  }
+  if(QN.insc.bloqueado){
+    html += `<div class="sv-msg err">Tu inscripción está bloqueada por pago pendiente. Ponte al corriente para capturar.</div>`;
+  }
+  if(QN.partidos.length===0){
+    html += `<div class="sv-vacio">No hay partidos en esta jornada.</div>`;
+    c.innerHTML = html; conectarQnControles(c); return;
+  }
+
+  const bloqueado = QN.insc.bloqueado;
+  html += `<div class="qn-instru">Pronostica <b>L / E / V</b> por partido. En los <span class="qn-estrella-lbl">★ estrella</span> también atina el <b>total de goles</b> para el punto extra. Cada partido cierra en su kickoff.</div>`;
+
+  html += `<div id="qn-lista">`;
+  QN.partidos.forEach(p=>{
+    html += filaPartidoQuiniela(p, bloqueado);
+  });
+  html += `</div>`;
+
+  // total de la jornada (desempate)
+  html += `
+  <div class="qn-total">
+    <div class="qn-total-lbl">Total de goles de <b>toda la jornada</b> <span class="qn-hint">(desempate)</span></div>
+    <input type="number" min="0" max="99" id="qn-total-input" class="qn-num-big"
+      value="${QN.totalJornada??''}" ${bloqueado?'disabled':''} placeholder="—">
+  </div>`;
+
+  html += `<button class="sv-guardar" id="qn-guardar" ${bloqueado?'disabled':''}>Guardar mis picks</button>`;
+  html += `<div id="qn-msg"></div>`;
+
+  c.innerHTML = html;
+  conectarQnControles(c);
+  conectarCapturaQuiniela(c);
+  arrancaCountdowns();
+}
+
+function filaPartidoQuiniela(p, bloqueado){
+  const arrancado = new Date(p.kickoff) <= new Date();
+  const cerrado = arrancado || p.pospuesto || p.bloqueado_manual;
+  const pick = QN.misPicks[p.id] || null;
+  const escL = escudoMini(p.loc), escV = escudoMini(p.vis);
+  const estrella = p.es_estrella;
+
+  let estado = '';
+  if(p.pospuesto) estado = `<span class="qn-flag posp">pospuesto</span>`;
+  else if(p.bloqueado_manual) estado = `<span class="qn-flag posp">bloqueado</span>`;
+
+  let botones = '';
+  ['L','E','V'].forEach(op=>{
+    const sel = pick===op;
+    const dis = cerrado || bloqueado;
+    botones += `<button class="qn-lev ${sel?'sel':''}" data-lev="${op}" data-part="${p.id}" ${dis?'disabled':''}>${op}</button>`;
+  });
+
+  // input de goles solo si es estrella
+  let golesInput = '';
+  if(estrella){
+    const val = QN.misGoles[p.id];
+    golesInput = `
+    <div class="qn-goles">
+      <span class="qn-goles-lbl">★ goles totales del partido</span>
+      <input type="number" min="0" max="20" class="qn-num" data-goles="${p.id}"
+        value="${val??''}" ${cerrado||bloqueado?'disabled':''} placeholder="—">
+    </div>`;
+  }
+
+  return `
+  <div class="qn-partido ${estrella?'es-estrella':''} ${cerrado?'cerrado':''}">
+    <div class="qn-part-top">
+      ${estrella?'<span class="qn-star">★ ESTRELLA</span>':''}
+      ${estado}
+      <span class="qn-cd" data-countdown="${p.kickoff}" data-prefijo="cierra en " data-cerrado-label="cerrado 🔒"></span>
+    </div>
+    <div class="qn-matchup">
+      <div class="qn-eq">${escL}<span>${escapa(p.loc.nombre_corto||p.loc.nombre)}</span></div>
+      <div class="qn-lev-box">${botones}</div>
+      <div class="qn-eq">${escV}<span>${escapa(p.vis.nombre_corto||p.vis.nombre)}</span></div>
+    </div>
+    ${golesInput}
+  </div>`;
+}
+
+function conectarQnControles(c){
+  c.querySelectorAll(".sv-toggle button").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      if(QN.vista!==b.dataset.qv){ QN.vista=b.dataset.qv; renderQuiniela($("contenido")); }
+    });
+  });
+  const pv=$("qn-prev"), sg=$("qn-sig");
+  if(pv) pv.addEventListener("click", async ()=>{
+    const i=QN.jornadasDisp.indexOf(QN.jornada);
+    if(i>0){ QN.jornada=QN.jornadasDisp[i-1]; QN._jornadaTocada=true; await pantallaQuiniela($("contenido")); }
+  });
+  if(sg) sg.addEventListener("click", async ()=>{
+    const i=QN.jornadasDisp.indexOf(QN.jornada);
+    if(i<QN.jornadasDisp.length-1){ QN.jornada=QN.jornadasDisp[i+1]; QN._jornadaTocada=true; await pantallaQuiniela($("contenido")); }
+  });
+}
+
+function conectarCapturaQuiniela(c){
+  // botones L/E/V
+  c.querySelectorAll(".qn-lev").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      const pid=b.dataset.part, op=b.dataset.lev;
+      QN.misPicks[pid] = (QN.misPicks[pid]===op) ? null : op;
+      // repintar solo ese grupo
+      c.querySelectorAll(`.qn-lev[data-part="${pid}"]`).forEach(x=>
+        x.classList.toggle("sel", x.dataset.lev===QN.misPicks[pid]));
+    });
+  });
+  // inputs de goles de estrella
+  c.querySelectorAll("[data-goles]").forEach(inp=>{
+    inp.addEventListener("input", ()=>{
+      const v=inp.value.trim();
+      QN.misGoles[inp.dataset.goles] = v===''?undefined:parseInt(v);
+    });
+  });
+  // total de jornada
+  const ti=$("qn-total-input");
+  if(ti) ti.addEventListener("input", ()=>{
+    const v=ti.value.trim(); QN.totalJornada = v===''?null:parseInt(v);
+  });
+  const g=$("qn-guardar");
+  if(g) g.addEventListener("click", guardarQuiniela);
+}
+
+async function guardarQuiniela(){
+  const g=$("qn-guardar"); const msg=$("qn-msg");
+  g.disabled=true; g.textContent="Guardando…"; msg.innerHTML="";
+
+  // Solo tocamos partidos NO cerrados; los cerrados la BD los rechaza igual.
+  const ahora = new Date();
+  const abiertos = QN.partidos.filter(p =>
+    !(new Date(p.kickoff)<=ahora || p.pospuesto || p.bloqueado_manual));
+  const idsAbiertos = abiertos.map(p=>p.id);
+
+  const picksLev = [];
+  const golesEstrella = [];
+  abiertos.forEach(p=>{
+    if(QN.misPicks[p.id]){
+      picksLev.push({ torneo_id:QN.torneo.id, usuario_id:perfil.id,
+        partido_id:p.id, pronostico:QN.misPicks[p.id] });
+    }
+    const gv = QN.misGoles[p.id];
+    if(p.es_estrella && gv!==undefined && gv!==null && !isNaN(gv)){
+      golesEstrella.push({ torneo_id:QN.torneo.id, usuario_id:perfil.id,
+        tipo:'jornada', jornada:QN.jornada, partido_id:p.id, pred_goles_totales:gv });
+    }
+  });
+
+  try{
+    // --- L/E/V: upsert por (usuario,partido) que SÍ tiene unique constraint ---
+    if(picksLev.length){
+      const { error } = await sb.from("quiniela_pick")
+        .upsert(picksLev, { onConflict:'usuario_id,partido_id' });
+      if(error) throw error;
+    }
+    // --- Goles de estrella: borrar los de partidos abiertos de esta jornada y reinsertar ---
+    if(idsAbiertos.length){
+      const { error: eDel } = await sb.from("tiebreaker_pick").delete()
+        .eq("usuario_id",perfil.id).eq("torneo_id",QN.torneo.id)
+        .eq("tipo","jornada").in("partido_id", idsAbiertos);
+      if(eDel) throw eDel;
+    }
+    if(golesEstrella.length){
+      const { error } = await sb.from("tiebreaker_pick").insert(golesEstrella);
+      if(error) throw error;
+    }
+    // --- Total de jornada (partido_id null): borrar el previo y reinsertar si hay valor ---
+    if(QN.totalJornada!==null && !isNaN(QN.totalJornada)){
+      await sb.from("tiebreaker_pick").delete()
+        .eq("usuario_id",perfil.id).eq("torneo_id",QN.torneo.id)
+        .eq("tipo","jornada").eq("jornada",QN.jornada).is("partido_id", null);
+      const { error } = await sb.from("tiebreaker_pick").insert({
+        torneo_id:QN.torneo.id, usuario_id:perfil.id, tipo:'jornada',
+        jornada:QN.jornada, partido_id:null, pred_goles_totales:QN.totalJornada });
+      if(error) throw error;
+    }
+    msg.innerHTML = `<div class="sv-msg ok">¡Picks guardados!</div>`;
+    setTimeout(()=>{ const m=msg.querySelector('.sv-msg'); if(m) m.remove(); }, 2500);
+  }catch(e){
+    msg.innerHTML = `<div class="sv-msg err">${escapa(traduceQuiniela(e.message||String(e)))}</div>`;
+  }
+  g.disabled=false; g.textContent="Guardar mis picks";
+}
+
+function traduceQuiniela(m){
+  m=(m||"").toLowerCase();
+  if(m.includes("ya arranco")) return "Uno o más partidos ya arrancaron; esos no se guardaron.";
+  if(m.includes("pospuesto")) return "Hay un partido pospuesto; ese no se guardó.";
+  if(m.includes("bloqueado")||m.includes("inscrito")) return "Tu inscripción está bloqueada o no estás inscrito.";
+  if(m.includes("row-level security")) return "No tienes permiso para guardar estos picks.";
+  return "No se pudo guardar: "+m;
+}
+
+// ---------- TABLAS (semanal + acumulada) ----------
+async function renderTablas(){
+  const cont=$("qn-tabla"); if(!cont) return;
+  let html = '';
+
+  // --- SEMANAL de la jornada actual ---
+  const { data: rj, error: e1 } = await sb.rpc("ranking_jornada",
+    { p_torneo_id:QN.torneo.id, p_jornada:QN.jornada });
+  html += `<div class="grp-seccion"><h3>Tabla semanal · Jornada ${QN.jornada}</h3>`;
+  if(e1){ html += `<div class="grp-locked">No se pudo cargar (${escapa(e1.message)}).</div>`; }
+  else if(!rj || rj.length===0){ html += `<div class="grp-locked">Aún no hay puntos en esta jornada.</div>`; }
+  else { html += tablaRanking(rj, 'jornada'); }
+  html += `</div>`;
+
+  // --- ACUMULADA: selector de etapa ---
+  if(QN.etapas.length===0){
+    const { data: et } = await sb.from("etapa_acumulada")
+      .select("*").eq("torneo_id",QN.torneo.id).order("orden");
+    QN.etapas = et || [];
+    if(QN.etapas.length && !QN.etapaSel) QN.etapaSel = QN.etapas[0].id;
+  }
+  html += `<div class="grp-seccion"><h3>Acumulada</h3>`;
+  if(QN.etapas.length===0){
+    html += `<div class="grp-locked">La acumulada aún no tiene etapas configuradas.</div>`;
+  } else {
+    html += `<select class="ad-inp" id="qn-etapa" style="width:auto;margin-bottom:10px">`;
+    QN.etapas.forEach(e=>{
+      html += `<option value="${e.id}" ${e.id===QN.etapaSel?'selected':''}>${escapa(e.nombre)} (J${e.jornada_desde}-${e.jornada_hasta})</option>`;
+    });
+    html += `</select><div id="qn-acum-tabla"><p style="color:var(--pizarra)">Cargando…</p></div>`;
+  }
+  html += `</div>`;
+
+  cont.innerHTML = html;
+
+  const sel=$("qn-etapa");
+  if(sel){
+    sel.addEventListener("change", ()=>{ QN.etapaSel=sel.value; cargarAcumulada(); });
+    cargarAcumulada();
+  }
+}
+
+async function cargarAcumulada(){
+  const box=$("qn-acum-tabla"); if(!box) return;
+  const { data: ra, error } = await sb.rpc("ranking_acumulada",
+    { p_torneo_id:QN.torneo.id, p_etapa_id:QN.etapaSel });
+  if(error){ box.innerHTML=`<div class="grp-locked">No se pudo cargar (${escapa(error.message)}).</div>`; return; }
+  if(!ra || ra.length===0){ box.innerHTML=`<div class="grp-locked">Aún no hay puntos en esta etapa.</div>`; return; }
+  box.innerHTML = tablaRanking(ra, 'acum');
+}
+
+function tablaRanking(filas, modo){
+  let html = `<div class="qn-rank">
+    <div class="qn-rank-head">
+      <span class="c-pos">#</span><span class="c-nom">Jugador</span>
+      <span class="c-pts">Pts</span><span class="c-des">Desempate</span>
+    </div>`;
+  const yo = perfil.id;
+  filas.forEach(f=>{
+    const soyYo = f.usuario_id===yo;
+    let des;
+    if(modo==='jornada'){
+      des = `★${f.goles_estrella_ok} · dif ${f.dif_goles_jornada??'—'}`;
+    } else {
+      des = `★${f.goles_estrella_ok} · Σdif ${f.suma_dif_goles??'—'}`;
+    }
+    html += `<div class="qn-rank-fila ${soyYo?'yo':''}">
+      <span class="c-pos">${f.pos}</span>
+      <span class="c-nom">${escapa(f.nombre)}${soyYo?' <b>(tú)</b>':''}</span>
+      <span class="c-pts">${f.puntos}</span>
+      <span class="c-des">${des}</span>
+    </div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+// ---- SECCIÓN ADMIN: ESTRELLAS + ETAPAS (modalidad Jornada) ----
+async function adJornadaSetup(){
+  const cont = $("ad-cont");
+  const { data: tor } = await sb.from("torneo").select("id,nombre").eq("activo",true).maybeSingle();
+  if(!tor){ cont.innerHTML=`<div class="ad-bloque">No hay torneo activo.</div>`; return; }
+  AD._torJ = tor;
+
+  // jornadas con partidos
+  const { data: js } = await sb.from("partido").select("jornada").eq("torneo_id",tor.id).order("jornada");
+  const jornadas = [...new Set((js||[]).map(x=>x.jornada))];
+  const jSel = AD._jestrella || jornadas[0] || 1;
+  AD._jestrella = jSel;
+
+  const opts = jornadas.map(j=>`<option value="${j}" ${j===jSel?'selected':''}>Jornada ${j}</option>`).join("");
+
+  cont.innerHTML = `
+  <div class="ad-bloque">
+    <h3>Partidos estrella ★</h3>
+    <div class="d">Marca los partidos que valen el punto extra por atinar el total de goles. Recomendado 2-3 por jornada. No se puede cambiar una vez que el partido arrancó.</div>
+    <div class="ad-row" style="margin-bottom:12px">
+      <span style="font-size:13px;color:var(--pizarra)">Jornada</span>
+      <select class="ad-inp" id="ad-jestrella" style="width:auto">${opts}</select>
+    </div>
+    <div id="ad-estrellas">Cargando…</div>
+  </div>
+  <div class="ad-bloque">
+    <h3>Etapas de la acumulada</h3>
+    <div class="d">Cada etapa premia al mejor dentro de una ventana de jornadas (ej. J1-J6). Sin etapas, la acumulada no muestra tabla. La semanal no usa etapas.</div>
+    <div id="ad-etapas">Cargando…</div>
+    <div class="ad-row" style="margin-top:12px;flex-wrap:wrap">
+      <input class="ad-inp" id="et-nombre" style="width:130px" placeholder="Nombre" type="text">
+      <span style="font-size:13px;color:var(--pizarra)">J</span>
+      <input class="ad-inp" id="et-desde" type="number" min="1" max="17" placeholder="desde" style="width:70px">
+      <span style="color:var(--pizarra)">a</span>
+      <input class="ad-inp" id="et-hasta" type="number" min="1" max="17" placeholder="hasta" style="width:70px">
+      <button class="ad-btn" id="et-crear">+ Etapa</button>
+    </div>
+    <div class="ad-log oculto" id="ad-log-et"></div>
+  </div>`;
+
+  $("ad-jestrella").addEventListener("change", ()=>{ AD._jestrella=parseInt($("ad-jestrella").value); adEstrellas(); });
+  $("et-crear").addEventListener("click", crearEtapa);
+  adEstrellas();
+  adEtapas();
+}
+
+async function adEstrellas(){
+  const box=$("ad-estrellas"); if(!box) return;
+  const tor=AD._torJ;
+  const { data: parts } = await sb.from("partido")
+    .select("id, kickoff, es_estrella, pospuesto, loc:equipo_local_id(nombre_corto,nombre), vis:equipo_visitante_id(nombre_corto,nombre)")
+    .eq("torneo_id",tor.id).eq("jornada",AD._jestrella).order("kickoff");
+  if(!parts || !parts.length){ box.innerHTML=`<div class="d">No hay partidos en esta jornada.</div>`; return; }
+  const nEstrella = parts.filter(p=>p.es_estrella).length;
+  let html = `<div class="d" style="margin-bottom:8px">Estrellas marcadas: <b style="color:var(--lima)">${nEstrella}</b></div>`;
+  parts.forEach(p=>{
+    const arrancado = new Date(p.kickoff)<=new Date();
+    html += `<div class="ad-fila">
+      <div class="info">
+        <div class="n">${escapa(p.loc?.nombre_corto||p.loc?.nombre||'?')} vs ${escapa(p.vis?.nombre_corto||p.vis?.nombre||'?')}</div>
+        <div class="m">${fechaHora(p.kickoff)}${p.pospuesto?' · pospuesto':''}</div>
+      </div>
+      <button class="ad-mini ${p.es_estrella?'on':'gris'}" data-estrella="${p.id}" data-val="${p.es_estrella?1:0}" ${arrancado?'disabled':''}>
+        ${p.es_estrella?'★ estrella':'marcar ★'}
+      </button>
+    </div>`;
+  });
+  box.innerHTML = html;
+  box.querySelectorAll("[data-estrella]").forEach(b=>{
+    b.addEventListener("click", async ()=>{
+      const id=b.dataset.estrella, val=b.dataset.val==='1';
+      b.disabled=true;
+      const { error } = await sb.from("partido").update({ es_estrella: !val }).eq("id",id);
+      if(error){ alert("Error: "+error.message); b.disabled=false; return; }
+      adEstrellas();
+    });
+  });
+}
+
+async function adEtapas(){
+  const box=$("ad-etapas"); if(!box) return;
+  const tor=AD._torJ;
+  const { data: et } = await sb.from("etapa_acumulada")
+    .select("*").eq("torneo_id",tor.id).order("orden");
+  if(!et || !et.length){ box.innerHTML=`<div class="d">Aún no hay etapas. Crea la primera abajo.</div>`; return; }
+  let html='';
+  et.forEach(e=>{
+    html += `<div class="ad-fila">
+      <div class="info">
+        <div class="n">${escapa(e.nombre)}</div>
+        <div class="m">Jornadas ${e.jornada_desde} a ${e.jornada_hasta}</div>
+      </div>
+      <button class="ad-mini off" data-borra-et="${e.id}">borrar</button>
+    </div>`;
+  });
+  box.innerHTML = html;
+  box.querySelectorAll("[data-borra-et]").forEach(b=>{
+    b.addEventListener("click", async ()=>{
+      if(!confirm("¿Borrar esta etapa? No afecta los picks, solo la tabla de premios.")) return;
+      const { error } = await sb.from("etapa_acumulada").delete().eq("id",b.dataset.borraEt);
+      if(error){ alert("Error: "+error.message); return; }
+      adEtapas();
+    });
+  });
+}
+
+async function crearEtapa(){
+  const tor=AD._torJ;
+  const nombre=$("et-nombre").value.trim();
+  const desde=parseInt($("et-desde").value), hasta=parseInt($("et-hasta").value);
+  const log=$("ad-log-et");
+  if(!nombre || isNaN(desde) || isNaN(hasta)){ log.classList.remove("oculto"); log.textContent="Llena nombre, desde y hasta."; return; }
+  if(desde>hasta){ log.classList.remove("oculto"); log.textContent="'Desde' no puede ser mayor que 'hasta'."; return; }
+  // orden = cantidad actual
+  const { count } = await sb.from("etapa_acumulada").select("*",{count:'exact',head:true}).eq("torneo_id",tor.id);
+  const { error } = await sb.from("etapa_acumulada").insert({
+    torneo_id:tor.id, nombre, jornada_desde:desde, jornada_hasta:hasta, orden:(count||0)
+  });
+  if(error){ log.classList.remove("oculto"); log.textContent="Error: "+error.message; return; }
+  $("et-nombre").value=""; $("et-desde").value=""; $("et-hasta").value="";
+  log.classList.add("oculto");
+  adEtapas();
+}
+// ##### FIN MODALIDAD JORNADA+ACUMULADA #####
 
 // ===================== TRADUCIR ERRORES =====================
 function traduce(msg){

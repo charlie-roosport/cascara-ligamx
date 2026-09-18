@@ -238,6 +238,12 @@
     border:1px solid var(--linea);color:var(--hueso);font-size:14px;font-family:inherit;width:70px}
   .ad-log{margin-top:10px;font-size:12px;color:var(--pizarra);white-space:pre-wrap;
     background:rgba(6,37,26,.5);border-radius:8px;padding:10px;max-height:160px;overflow:auto;line-height:1.5}
+  .ad-cargador{padding:12px 0;border-top:1px solid var(--linea)}
+  .ad-cargador:first-of-type{border-top:none}
+  .ad-carg-tit{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;margin-bottom:8px}
+  .ad-carg-lbl{width:52px;font-size:13px;color:var(--pizarra)}
+  .lg-leg-tag{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;
+    color:var(--lima);text-transform:uppercase;letter-spacing:.04em}
   .ad-fila{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--linea)}
   .ad-fila:first-of-type{border-top:none}
   .ad-fila .info{flex:1;min-width:0}
@@ -469,6 +475,64 @@
     font-size:18px;color:var(--lima);text-align:center}
   .qn-rank-fila .c-des{font-size:11px;color:var(--pizarra);white-space:nowrap;text-align:right}
   .qn-rank-head .c-pts,.qn-rank-head .c-des{text-align:right}
+
+  /* ---------- LIGUILLA (bracket) ---------- */
+  .lg-instru{font-size:14px;color:var(--pizarra);margin:14px 0 12px;line-height:1.5}
+  .lg-instru b{color:var(--hueso)}
+  .lg-ronda{margin-bottom:18px}
+  .lg-ronda-tit{display:flex;align-items:baseline;gap:8px;margin:2px 0 10px}
+  .lg-ronda-tit h3{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:19px;letter-spacing:.02em}
+  .lg-ronda-tit .pts{font-size:11px;color:var(--lima);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+  .lg-serie{background:rgba(15,78,58,.72);border:1px solid var(--linea);border-radius:var(--radio);
+    padding:10px;margin-bottom:8px;backdrop-filter:blur(2px)}
+  .lg-serie.pend{opacity:.5}
+  .lg-lados{display:flex;gap:8px;align-items:stretch}
+  .lg-lado{flex:1;display:flex;align-items:center;gap:9px;padding:10px;border-radius:10px;cursor:pointer;
+    background:rgba(11,61,46,.55);border:1.5px solid var(--linea);transition:all .12s;text-align:left}
+  .lg-lado .seed{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--pizarra);
+    min-width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:rgba(6,37,26,.55);flex:0 0 auto}
+  .lg-lado .nom{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:15px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lg-lado .mini,.lg-lado .mini-mono{width:24px;height:24px;flex:0 0 auto}
+  .lg-lado.sel{background:var(--lima);border-color:var(--lima);color:#06251A}
+  .lg-lado.sel .seed{background:rgba(6,37,26,.2);color:#06251A}
+  .lg-lado.dis{opacity:.4;cursor:not-allowed}
+  .lg-vs{display:flex;align-items:center;color:var(--pizarra);font-size:11px;padding:0 1px}
+  .lg-campeon{background:rgba(15,78,58,.72);border:1px dashed rgba(182,255,60,.5);border-radius:var(--radio);
+    padding:12px;margin-bottom:8px;text-align:center}
+  .lg-campeon .clbl{font-size:12px;color:var(--lima);font-weight:600;text-transform:uppercase;
+    letter-spacing:.04em;margin-bottom:8px}
+  .lg-campeon .lg-lados{max-width:340px;margin:0 auto}
+  .lg-hint{font-size:12px;color:var(--pizarra);text-align:center;padding:6px 0}
+  /* resultado real (vista grupo) */
+  .lg-real-serie{display:flex;align-items:center;gap:10px;padding:9px 12px;
+    background:rgba(15,78,58,.55);border:1px solid var(--linea);border-radius:10px;margin-bottom:6px}
+  .lg-real-serie .par{flex:1;display:flex;align-items:center;gap:8px;font-family:'Barlow Condensed',sans-serif;
+    font-weight:600;font-size:15px;min-width:0}
+  .lg-real-serie .par .mini,.lg-real-serie .par .mini-mono{width:22px;height:22px}
+  .lg-real-serie .eqn{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lg-real-serie .avanza{color:var(--lima)}
+  .lg-real-serie .vs{color:var(--pizarra);font-size:11px;font-weight:400}
+  .lg-real-serie .marca{font-size:11px;color:var(--pizarra);flex:0 0 auto}
+  .lg-real-serie .marca.ok{color:var(--lima);font-weight:600}
+  /* tabla ranking liguilla (5 columnas) */
+  .lg-rank{border:1px solid var(--linea);border-radius:var(--radio);overflow:hidden}
+  .lg-rank-head,.lg-rank-fila{display:grid;grid-template-columns:30px 1fr 40px 38px 38px;
+    align-items:center;gap:6px;padding:9px 10px}
+  .lg-rank-head{background:rgba(6,37,26,.5);font-size:10px;color:var(--pizarra);
+    text-transform:uppercase;letter-spacing:.03em}
+  .lg-rank-fila{border-top:1px solid var(--linea);font-size:13px}
+  .lg-rank-fila.yo{background:rgba(182,255,60,.1)}
+  .lg-rank-fila .c-pos{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;
+    color:var(--pizarra);text-align:center}
+  .lg-rank-fila .c-nom{min-width:0}
+  .lg-rank-fila .c-nom .ap{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:14px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lg-rank-fila .c-nom .du{font-size:11px;color:var(--pizarra);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lg-rank .c-tot{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:17px;color:var(--lima);text-align:center}
+  .lg-rank .c-a,.lg-rank .c-b{font-size:12px;color:var(--pizarra);text-align:center}
+  .lg-rank-head .c-tot,.lg-rank-head .c-a,.lg-rank-head .c-b{text-align:center}
 </style>
 </head>
 <body>
@@ -692,14 +756,9 @@ function cambiaTab(nombre){
   const c = $("contenido");
   if(nombre === "survivor"){ pantallaSurvivor(c); return; }
   if(nombre === "quiniela"){ pantallaQuiniela(c); return; }
+  if(nombre === "liguilla"){ pantallaLiguilla(c); return; }
   if(nombre === "cuenta"){ pantallaCuenta(c); return; }
   if(nombre === "admin"){ pantallaAdmin(c); return; }
-  // Las demás siguen como placeholder hasta su capa
-  const titulos = {
-    liguilla: ["Liguilla", "Aquí llenarás tu bracket y tus pronósticos ronda por ronda."]
-  };
-  const [t, d] = titulos[nombre];
-  c.innerHTML = `<div class="placeholder"><div class="cond">${t}</div><p>${d}</p><p style="margin-top:10px;font-size:13px;">Próximamente en la siguiente capa.</p></div>`;
 }
 
 // =====================================================================
@@ -1212,12 +1271,15 @@ async function pantallaCuenta(c){
   // mis boletos de survivor
   const { data: tickets } = await sb.from("survivor_ticket")
     .select("*").eq("torneo_id", tor.id).eq("usuario_id", perfil.id).order("creado_en");
-  // mis inscripciones (jornada_acumulada, liguilla)
+  // mis boletos de liguilla (multi-boleto, como Survivor)
+  const { data: ligTickets } = await sb.from("liguilla_ticket")
+    .select("*").eq("torneo_id", tor.id).eq("usuario_id", perfil.id).order("creado_en");
+  // mi inscripción de jornada+acumulada (una sola por persona)
   const { data: insc } = await sb.from("inscripcion")
-    .select("*").eq("torneo_id", tor.id).eq("usuario_id", perfil.id);
+    .select("*").eq("torneo_id", tor.id).eq("usuario_id", perfil.id)
+    .eq("modalidad","jornada_acumulada");
 
   const tieneJornada = (insc||[]).find(i=>i.modalidad==='jornada_acumulada');
-  const tieneLiguilla = (insc||[]).find(i=>i.modalidad==='liguilla');
 
   const badge = (row) => {
     if(row.bloqueado) return `<span class="ct-badge bloq">bloqueado</span>`;
@@ -1266,15 +1328,28 @@ async function pantallaCuenta(c){
          <button class="ct-btn" id="inscribir-jornada">Inscribirme</button></div>`}
   </div>`;
 
-  // ---- LIGUILLA ----
+  // ---- LIGUILLA (multi-boleto) ----
+  let filasLig = "";
+  (ligTickets||[]).forEach(tk=>{
+    filasLig += `
+    <div class="ct-fila">
+      <div class="info">
+        <div class="nom">${escapa(tk.apodo)}</div>
+        <div class="meta">boleto de liguilla</div>
+      </div>
+      ${badge(tk)}
+    </div>`;
+  });
+  if(!filasLig) filasLig = `<div class="ct-vacio">Aún no tienes boletos de Liguilla.</div>`;
   html += `
   <div class="ct-bloque">
     <h3>Liguilla</h3>
-    <div class="desc">Bracket de la fase final. Inscripción aparte, corta e intensa.</div>
-    ${tieneLiguilla
-      ? `<div class="ct-fila"><div class="info"><div class="nom">Inscrito</div></div>${badge(tieneLiguilla)}</div>`
-      : `<div class="ct-fila"><div class="info"><div class="meta">No estás inscrito</div></div>
-         <button class="ct-btn" id="inscribir-liguilla">Inscribirme</button></div>`}
+    <div class="desc">Bracket de la fase final, corta e intensa. Puedes comprar los boletos que quieras, cada uno con su apodo y su propio cuadro.</div>
+    ${filasLig}
+    <div class="ct-fila" style="border-top:1px solid var(--linea)">
+      <div class="info"><div class="meta">Compra un boleto nuevo</div></div>
+      <button class="ct-btn" id="comprar-lig">+ Nuevo boleto</button>
+    </div>
   </div>`;
 
   // ---- salir ----
@@ -1301,8 +1376,16 @@ async function pantallaCuenta(c){
   });
   const bJ = $("inscribir-jornada");
   if(bJ) bJ.addEventListener("click", ()=> inscribir(tor.id, 'jornada_acumulada', c));
-  const bL = $("inscribir-liguilla");
-  if(bL) bL.addEventListener("click", ()=> inscribir(tor.id, 'liguilla', c));
+  const bLig = $("comprar-lig");
+  if(bLig) bLig.addEventListener("click", async ()=>{
+    const apodo = prompt("Ponle un apodo a tu boleto de Liguilla (para distinguir tus varios cuadros):", "");
+    if(!apodo || !apodo.trim()) return;
+    const { error } = await sb.from("liguilla_ticket").insert({
+      torneo_id: tor.id, usuario_id: perfil.id, apodo: apodo.trim()
+    });
+    if(error){ alert("No se pudo crear el boleto: " + error.message); return; }
+    pantallaCuenta(c);
+  });
   $("ct-salir").addEventListener("click", async ()=>{
     await sb.auth.signOut(); perfil=null;
     $("app").style.display="none"; $("auth").style.display="flex";
@@ -1333,6 +1416,7 @@ async function pantallaAdmin(c){
     <button data-s="jugadores" class="${AD.seccion==='jugadores'?'activa':''}">Jugadores</button>
     <button data-s="cierre" class="${AD.seccion==='cierre'?'activa':''}">Cierre</button>
     <button data-s="jornada" class="${AD.seccion==='jornada'?'activa':''}">Jornada</button>
+    <button data-s="liguilla" class="${AD.seccion==='liguilla'?'activa':''}">Liguilla</button>
   </div>
   <div id="ad-cont"></div>`;
   c.innerHTML = html;
@@ -1342,6 +1426,7 @@ async function pantallaAdmin(c){
   if(AD.seccion==='calendario') adCalendario();
   else if(AD.seccion==='jugadores') adJugadores();
   else if(AD.seccion==='jornada') adJornadaSetup();
+  else if(AD.seccion==='liguilla') adLiguilla();
   else adCierre();
 }
 
@@ -2019,6 +2104,746 @@ async function crearEtapa(){
   adEtapas();
 }
 // ##### FIN MODALIDAD JORNADA+ACUMULADA #####
+
+// ##### INICIO MODALIDAD LIGUILLA #####
+// =====================================================================
+//  ADMIN · LIGUILLA (armar cuadro + marcar avances + boletos)
+// =====================================================================
+const RONDA_NOMBRE = { cuartos:'Cuartos', semis:'Semifinales', final:'Final' };
+
+// carga las series del torneo agrupadas por ronda (con nombres de equipo)
+async function cargarSeriesLiguilla(torneoId){
+  const { data: rows } = await sb.from("liguilla_serie")
+    .select("id, ronda, slot, seed_a, seed_b, equipo_a_id, equipo_b_id, equipo_avanza_id, es_campeon_serie, "+
+            "ea:equipo_a_id(nombre,nombre_corto,escudo_url,color), "+
+            "eb:equipo_b_id(nombre,nombre_corto,escudo_url,color)")
+    .eq("torneo_id", torneoId).order("ronda").order("slot");
+  const g = { cuartos:[], semis:[], final:[] };
+  (rows||[]).forEach(r=>{ (g[r.ronda] = g[r.ronda]||[]).push(r); });
+  return g;
+}
+
+async function adLiguilla(){
+  const cont = $("ad-cont");
+  const { data: tor } = await sb.from("torneo").select("id,nombre").eq("activo",true).maybeSingle();
+  if(!tor){ cont.innerHTML=`<div class="ad-bloque">No hay torneo activo.</div>`; return; }
+  AD._torL = tor;
+  cont.innerHTML = `<div class="ad-bloque"><div class="d">Cargando cuadro…</div></div>`;
+
+  const series = await cargarSeriesLiguilla(tor.id);
+  const cuartos = series.cuartos || [];
+  const hayResultados = cuartos.some(s=>s.equipo_avanza_id);
+
+  let html = "";
+
+  // ---- 1) ARMAR CUARTOS ----
+  if(cuartos.length === 0){
+    const { data: eqs } = await sb.from("equipo").select("id,nombre").eq("activo",true).order("nombre");
+    const opciones = (eqs||[]).map(e=>`<option value="${e.id}">${escapa(e.nombre)}</option>`).join("");
+    let selects = "";
+    for(let s=1;s<=8;s++){
+      selects += `<div class="ad-row" style="gap:8px">
+        <span style="width:64px;font-size:13px;color:var(--pizarra)">Seed ${s}</span>
+        <select class="ad-inp" data-seed="${s}" style="flex:1"><option value="">— elige —</option>${opciones}</select>
+      </div>`;
+    }
+    html += `
+    <div class="ad-bloque">
+      <h3>Armar cuadro de cuartos</h3>
+      <div class="d">Carga los 8 equipos <b>en orden de seed 1 al 8</b> (la tabla general la pones tú; la API no la da). El sistema arma solo los cruces 1v8, 2v7, 3v6, 4v5. Semis y final se siembran solas conforme marques quién avanza.</div>
+      ${selects}
+      <button class="ad-btn" id="lg-armar" style="margin-top:6px">Armar cuadro</button>
+      <div class="ad-log oculto" id="lg-log-armar"></div>
+    </div>`;
+  } else {
+    // resumen + opción de rearmar (solo si aún no hay resultados)
+    html += `
+    <div class="ad-bloque">
+      <h3>Cuadro armado</h3>
+      <div class="d">El cuadro de cuartos ya está cargado.${hayResultados
+        ? ' Ya hay avances marcados, así que no se puede rearmar.'
+        : ' Aún no marcas avances; puedes borrarlo y rearmarlo si te equivocaste.'}</div>
+      ${hayResultados ? '' : `<button class="ad-btn off" id="lg-rearmar">Borrar y rearmar cuadro</button>`}
+    </div>`;
+  }
+
+  // ---- 2) MARCAR AVANCES (por ronda) ----
+  if(cuartos.length){
+    html += `<div class="ad-bloque"><h3>Marcar quién avanza</h3>
+      <div class="d">Toca al equipo que pasa en cada serie. Al marcar cuartos completos, las semis aparecen solas (mejor seed vivo vs peor); igual la final. La Capa A de los jugadores se recalcula sola.</div>`;
+    ["cuartos","semis","final"].forEach(ronda=>{
+      const arr = series[ronda]||[];
+      if(!arr.length) return;
+      html += `<div style="margin-top:12px"><div class="lg-ronda-tit"><h3 style="font-size:16px">${RONDA_NOMBRE[ronda]}</h3></div>`;
+      arr.forEach(s=>{
+        const listo = !!s.equipo_avanza_id;
+        const aSel = s.equipo_avanza_id===s.equipo_a_id, bSel = s.equipo_avanza_id===s.equipo_b_id;
+        html += `<div class="lg-serie ${(!s.equipo_a_id||!s.equipo_b_id)?'pend':''}">
+          <div class="lg-lados">
+            <div class="lg-lado ${aSel?'sel':''}" data-avanza="${s.id}" data-eq="${s.equipo_a_id||''}">
+              <span class="seed">${s.seed_a??'?'}</span>${escudoMini(s.ea)}<span class="nom">${escapa(s.ea?.nombre_corto||s.ea?.nombre||'por definir')}</span>
+            </div>
+            <div class="lg-vs">vs</div>
+            <div class="lg-lado ${bSel?'sel':''}" data-avanza="${s.id}" data-eq="${s.equipo_b_id||''}">
+              <span class="seed">${s.seed_b??'?'}</span>${escudoMini(s.eb)}<span class="nom">${escapa(s.eb?.nombre_corto||s.eb?.nombre||'por definir')}</span>
+            </div>
+          </div>
+          ${listo?'':'<div class="lg-hint">sin marcar</div>'}
+        </div>`;
+      });
+      html += `</div>`;
+    });
+    html += `</div>`;
+  }
+
+  // ---- 2.5) CARGAR PARTIDOS (ida/vuelta por serie) ----
+  let partidosLig = [];
+  if(cuartos.length){
+    const { data: pl } = await sb.from("partido")
+      .select("id, jornada, kickoff, goles_local, goles_visitante, equipo_local_id, equipo_visitante_id")
+      .eq("torneo_id", tor.id).gt("jornada", 17).order("kickoff");
+    partidosLig = pl || [];
+    html += renderAdCargador(series, partidosLig);
+  }
+
+  // ---- 3) BOLETOS DE LIGUILLA (pago/bloqueo) ----
+  html += `<div class="ad-bloque"><h3>Boletos de Liguilla</h3>
+    <div class="d">Marca pagos o bloquea morosos. Un boleto bloqueado queda fuera del ranking.</div>
+    <div id="lg-ad-tickets">Cargando…</div></div>`;
+
+  cont.innerHTML = html;
+
+  // --- eventos: armar ---
+  const bArmar = $("lg-armar");
+  if(bArmar) bArmar.addEventListener("click", async ()=>{
+    const ids = [];
+    cont.querySelectorAll("[data-seed]").forEach(sel=> ids[parseInt(sel.dataset.seed)-1] = sel.value || null);
+    const log = $("lg-log-armar"); log.classList.remove("oculto");
+    if(ids.some(x=>!x)){ log.textContent = "Faltan equipos: llena los 8 seeds."; return; }
+    if(new Set(ids).size !== 8){ log.textContent = "Hay equipos repetidos: cada seed debe ser distinto."; return; }
+    bArmar.disabled = true; log.textContent = "Armando cuadro…";
+    const { error } = await sb.rpc("armar_cuartos_liguilla", { p_torneo_id: AD._torL.id, p_equipos: ids });
+    if(error){ log.textContent = "Error: "+error.message; bArmar.disabled=false; return; }
+    adLiguilla();
+  });
+
+  // --- eventos: rearmar (borra series sin resultados) ---
+  const bRe = $("lg-rearmar");
+  if(bRe) bRe.addEventListener("click", async ()=>{
+    if(!confirm("¿Borrar el cuadro actual y volver a armarlo? Solo se puede si nadie ha avanzado aún.")) return;
+    const { error } = await sb.from("liguilla_serie").delete().eq("torneo_id", AD._torL.id);
+    if(error){ alert("No se pudo borrar: "+error.message); return; }
+    adLiguilla();
+  });
+
+  // --- eventos: marcar avance ---
+  cont.querySelectorAll("[data-avanza]").forEach(el=>{
+    el.addEventListener("click", async ()=>{
+      const serieId = el.dataset.avanza, eqId = el.dataset.eq;
+      if(!eqId) return;
+      el.style.opacity = ".5";
+      const { error } = await sb.from("liguilla_serie").update({ equipo_avanza_id: eqId }).eq("id", serieId);
+      if(error){ alert("Error: "+error.message); adLiguilla(); return; }
+      adLiguilla(); // recarga: el trigger ya resembró semis/final y recalculó Capa A
+    });
+  });
+
+  // --- eventos: cargar/actualizar partidos ida/vuelta ---
+  cont.querySelectorAll("[data-carg]").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      const serieId = btn.dataset.carg;
+      const box = cont.querySelector(`.ad-cargador[data-serie="${serieId}"]`);
+      const log = cont.querySelector(`[data-carglog="${serieId}"]`);
+      log.classList.remove("oculto");
+      const ida = box.querySelector('[data-ko="ida"]').value;
+      const vue = box.querySelector('[data-ko="vuelta"]').value;
+      if(!ida || !vue){ log.textContent = "Pon ambos horarios (ida y vuelta)."; return; }
+      const idaISO = new Date(ida).toISOString();   // hora local -> UTC
+      const vueISO = new Date(vue).toISOString();
+      if(new Date(vueISO) <= new Date(idaISO)){ log.textContent = "La vuelta debe ser después de la ida."; return; }
+      btn.disabled = true; log.textContent = "Guardando…";
+      const { error } = await sb.rpc("guardar_partidos_serie_liguilla",
+        { p_serie_id: serieId, p_ida_kickoff: idaISO, p_vuelta_kickoff: vueISO });
+      if(error){ log.textContent = "Error: "+error.message; btn.disabled = false; return; }
+      adLiguilla();
+    });
+  });
+
+  adLiguillaTickets();
+}
+
+// dibuja el bloque admin de cargar partidos ida/vuelta para cada serie ya definida
+function renderAdCargador(series, partidos){
+  const toLocal = iso => { const d=new Date(iso); return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16); };
+  let html = `<div class="ad-bloque"><h3>Cargar partidos (ida y vuelta)</h3>
+    <div class="d">Para cada serie ya definida, pon el arranque de <b>ida</b> y <b>vuelta</b> (hora local). Se crean los dos partidos y quedan ligados a la serie por par de equipos: ida de local el peor sembrado, vuelta de local el mejor. Puedes reajustar horarios mientras no haya resultados.</div>`;
+  let algo = false;
+  ["cuartos","semis","final"].forEach(ronda=>{
+    (series[ronda]||[]).forEach(s=>{
+      if(!s.equipo_a_id || !s.equipo_b_id) return;
+      algo = true;
+      const legs = partidos.filter(p=> lgCasaSerie(s,p)).slice().sort((a,b)=> new Date(a.kickoff)-new Date(b.kickoff));
+      const conGol = legs.some(p=> p.goles_local!=null || p.goles_visitante!=null);
+      const idaVal = legs[0] ? toLocal(legs[0].kickoff) : '';
+      const vueVal = legs[1] ? toLocal(legs[1].kickoff) : '';
+      const na = escapa(s.ea?.nombre_corto||s.ea?.nombre||'?');
+      const nb = escapa(s.eb?.nombre_corto||s.eb?.nombre||'?');
+      html += `<div class="ad-cargador" data-serie="${s.id}">
+        <div class="ad-carg-tit">${RONDA_NOMBRE[ronda]} · ${nb} (local ida) vs ${na}</div>
+        <div class="ad-row"><label class="ad-carg-lbl">Ida</label>
+          <input type="datetime-local" class="ad-inp" style="width:auto" data-ko="ida" value="${idaVal}" ${conGol?'disabled':''}></div>
+        <div class="ad-row"><label class="ad-carg-lbl">Vuelta</label>
+          <input type="datetime-local" class="ad-inp" style="width:auto" data-ko="vuelta" value="${vueVal}" ${conGol?'disabled':''}></div>
+        ${conGol
+          ? `<div class="ad-log">Ya hay resultados en esta serie; los horarios quedan fijos.</div>`
+          : `<button class="ad-btn" data-carg="${s.id}" style="margin-top:6px">${legs.length?'Actualizar horarios':'Crear partidos'}</button>`}
+        <div class="ad-log oculto" data-carglog="${s.id}"></div>
+      </div>`;
+    });
+  });
+  if(!algo) html += `<div class="d">Aún no hay series con ambos equipos definidos. Marca avances arriba para que se definan.</div>`;
+  html += `</div>`;
+  return html;
+}
+
+async function adLiguillaTickets(){
+  const box = $("lg-ad-tickets"); if(!box) return;
+  const { data: tks } = await sb.from("liguilla_ticket")
+    .select("id, apodo, pagado, bloqueado, usuario_id, duenio:usuario_id(nombre, es_prueba)")
+    .eq("torneo_id", AD._torL.id).order("creado_en");
+  if(!tks || !tks.length){ box.innerHTML = `<div class="d">No hay boletos de liguilla todavía.</div>`; return; }
+  let html = "";
+  tks.forEach(tk=>{
+    html += `<div class="ad-fila">
+      <div class="info">
+        <div class="n">${escapa(tk.apodo)} ${tk.duenio?.es_prueba?'<span style="color:var(--pizarra)">(prueba)</span>':''}</div>
+        <div class="m">${escapa(tk.duenio?.nombre||'—')}</div>
+      </div>
+      <button class="ad-mini ${tk.pagado?'on':'gris'}" data-lacc="pago" data-id="${tk.id}" data-val="${tk.pagado?1:0}">${tk.pagado?'pagado':'marcar pago'}</button>
+      <button class="ad-mini ${tk.bloqueado?'off':'gris'}" data-lacc="bloqueo" data-id="${tk.id}" data-val="${tk.bloqueado?1:0}">${tk.bloqueado?'bloqueado':'bloquear'}</button>
+    </div>`;
+  });
+  box.innerHTML = html;
+  box.querySelectorAll("[data-lacc]").forEach(b=>{
+    b.addEventListener("click", async ()=>{
+      const id=b.dataset.id, acc=b.dataset.lacc, val=b.dataset.val==='1';
+      const campo = acc==='pago' ? 'pagado' : 'bloqueado';
+      const upd = { [campo]: !val };
+      if(acc==='pago' && !val) upd.pagado_en = new Date().toISOString();
+      const { error } = await sb.from("liguilla_ticket").update(upd).eq("id", id);
+      if(error){ alert("Error: "+error.message); return; }
+      adLiguillaTickets();
+    });
+  });
+}
+
+// =====================================================================
+//  PANTALLA LIGUILLA (jugador) — Capa A: bracket de predicción
+// =====================================================================
+const LG = { torneo:null, tickets:[], ticketSel:null, series:null,
+             pred:{ cuartos:{}, semis:{}, campeon:null },
+             deadline:null, vista:'bracket', capBpartidos:0,
+             partidos:[], picksB:{}, pbSel:{} };
+
+async function pantallaLiguilla(c){
+  c.innerHTML = `<p style="color:var(--pizarra)">Cargando…</p>`;
+
+  // torneo activo
+  if(!LG.torneo){
+    const { data: tor } = await sb.from("torneo").select("*").eq("activo",true).maybeSingle();
+    if(!tor){ c.innerHTML = `<div class="sv-vacio">Todavía no hay un torneo activo.</div>`; return; }
+    LG.torneo = tor;
+  }
+
+  // mis boletos de liguilla
+  const { data: tickets } = await sb.from("liguilla_ticket")
+    .select("*").eq("torneo_id", LG.torneo.id).eq("usuario_id", perfil.id).order("creado_en");
+  LG.tickets = tickets || [];
+  if(LG.ticketSel && !LG.tickets.find(t=>t.id===LG.ticketSel)) LG.ticketSel = null;
+  if(!LG.ticketSel && LG.tickets.length) LG.ticketSel = LG.tickets[0].id;
+
+  // series del torneo
+  LG.series = await cargarSeriesLiguilla(LG.torneo.id);
+
+  // deadline de Capa A = primer kickoff de un partido de liguilla de cuartos.
+  // (partido de liguilla = jornada > 17 cuyo par de equipos casa una serie de cuartos)
+  LG.deadline = null; LG.capBpartidos = 0; LG.partidos = [];
+  const cuartos = LG.series.cuartos || [];
+  {
+    const { data: pl } = await sb.from("partido")
+      .select("id, jornada, kickoff, pospuesto, bloqueado_manual, goles_local, goles_visitante, "+
+              "equipo_local_id, equipo_visitante_id, "+
+              "loc:equipo_local_id(nombre,nombre_corto,escudo_url,color), "+
+              "vis:equipo_visitante_id(nombre,nombre_corto,escudo_url,color)")
+      .eq("torneo_id", LG.torneo.id).gt("jornada", 17).order("kickoff");
+    LG.partidos = pl || [];
+    LG.capBpartidos = LG.partidos.length;
+    if(cuartos.length){
+      const pares = cuartos.map(s=>[s.equipo_a_id, s.equipo_b_id]);
+      const casa = (a,b)=> pares.some(p=> (p[0]===a&&p[1]===b) || (p[0]===b&&p[1]===a));
+      const kicks = LG.partidos.filter(p=> casa(p.equipo_local_id, p.equipo_visitante_id)).map(p=> new Date(p.kickoff));
+      if(kicks.length) LG.deadline = new Date(Math.min(...kicks.map(d=>d.getTime())));
+    }
+  }
+
+  // mi bracket del boleto seleccionado
+  LG.pred = { cuartos:{}, semis:{}, campeon:null };
+  if(LG.ticketSel){
+    const { data: br } = await sb.from("liguilla_bracket")
+      .select("ronda, slot, equipo_pred_id, es_pick_campeon")
+      .eq("ticket_id", LG.ticketSel);
+    (br||[]).forEach(r=>{
+      if(r.ronda==='cuartos') LG.pred.cuartos[r.slot] = r.equipo_pred_id;
+      else if(r.ronda==='semis') LG.pred.semis[r.slot] = r.equipo_pred_id;
+      else if(r.ronda==='final') LG.pred.campeon = r.equipo_pred_id;
+    });
+  }
+
+  // Capa B: mis pronósticos L/E/V del boleto seleccionado (partido_id -> L/E/V)
+  LG.picksB = {};
+  if(LG.ticketSel){
+    const { data: pb } = await sb.from("liguilla_pick")
+      .select("partido_id, pronostico").eq("ticket_id", LG.ticketSel);
+    (pb||[]).forEach(r=>{ LG.picksB[r.partido_id] = r.pronostico; });
+  }
+  LG.pbSel = Object.assign({}, LG.picksB);
+
+  renderLiguilla(c);
+}
+
+// deriva las semis a partir de los 4 ganadores elegidos en cuartos (misma
+// resiembra que el backend: por seed asc, rn1 vs rn4 y rn2 vs rn3)
+function semisDerivadas(){
+  const cuartos = (LG.series.cuartos||[]).slice().sort((a,b)=>a.slot-b.slot);
+  if(cuartos.length !== 4) return null;
+  const w = [];
+  for(const s of cuartos){
+    const eid = LG.pred.cuartos[s.slot];
+    if(!eid) return null;
+    const seed = (s.equipo_a_id===eid) ? s.seed_a : s.seed_b;
+    const eq = (s.equipo_a_id===eid) ? s.ea : s.eb;
+    w.push({ equipo_id:eid, seed, eq });
+  }
+  w.sort((a,b)=>a.seed-b.seed);
+  return [ {dslot:1, a:w[0], b:w[3]}, {dslot:2, a:w[1], b:w[2]} ];
+}
+
+// limpia predicciones aguas abajo que quedaron inválidas al cambiar cuartos
+function saneaPred(){
+  const semis = semisDerivadas();
+  if(!semis){ LG.pred.semis = {}; LG.pred.campeon = null; return; }
+  semis.forEach(s=>{
+    const cur = LG.pred.semis[s.dslot];
+    if(cur && cur!==s.a.equipo_id && cur!==s.b.equipo_id) LG.pred.semis[s.dslot] = null;
+  });
+  const f1 = LG.pred.semis[1], f2 = LG.pred.semis[2];
+  if(LG.pred.campeon && LG.pred.campeon!==f1 && LG.pred.campeon!==f2) LG.pred.campeon = null;
+}
+
+function lgLado(eq, seed, sel, dis, attrs){
+  return `<div class="lg-lado ${sel?'sel':''} ${dis?'dis':''}" ${attrs||''}>
+    <span class="seed">${seed??'?'}</span>${escudoMini(eq)}<span class="nom">${escapa(eq?.nombre_corto||eq?.nombre||'?')}</span>
+  </div>`;
+}
+
+function renderLiguilla(c){
+  let html = `
+  <div class="sv-cabecera">
+    <h2>Liguilla</h2>
+    <div class="jornada">
+      <img src="https://jusjfukucehsrtechmyw.supabase.co/storage/v1/object/public/marca/ligamx.svg?v=2"
+           alt="Liga MX" class="logo-liga" onerror="this.style.display='none'">
+      ${escapa(LG.torneo.nombre)} · Fase final
+    </div>
+  </div>`;
+
+  // toggle Mi bracket / El grupo
+  html += `
+  <div class="sv-toggle">
+    <button data-lv="bracket" class="${LG.vista==='bracket'?'activa':''}">Mi bracket</button>
+    <button data-lv="grupo" class="${LG.vista==='grupo'?'activa':''}">El grupo</button>
+  </div>`;
+
+  if(LG.vista==='grupo'){
+    html += `<div id="lg-grupo"><p style="color:var(--pizarra)">Cargando…</p></div>`;
+    c.innerHTML = html;
+    conectarLgToggle(c);
+    renderLiguillaGrupo();
+    return;
+  }
+
+  // --- vista Mi bracket ---
+  if(LG.tickets.length === 0){
+    html += `<div class="sv-vacio">Aún no tienes boletos de Liguilla.<br><br>
+      <button class="ct-btn" onclick="cambiaTab('cuenta')">Comprar un boleto en tu Cuenta</button></div>`;
+    c.innerHTML = html; conectarLgToggle(c); return;
+  }
+
+  // carrusel de boletos
+  html += `<div class="sv-tickets">`;
+  LG.tickets.forEach(tk=>{
+    const estado = tk.bloqueado ? '<div class="estado-muerto">bloqueado</div>'
+                 : (tk.pagado ? '' : '<div class="cl" style="color:var(--pizarra);font-size:11px">pago pendiente</div>');
+    html += `<div class="sv-ticket ${tk.id===LG.ticketSel?'sel':''}" data-ltk="${tk.id}">
+        <div class="apodo">${escapa(tk.apodo)}</div>${estado}
+      </div>`;
+  });
+  html += `</div>`;
+
+  const cuartos = (LG.series.cuartos||[]).slice().sort((a,b)=>a.slot-b.slot);
+  if(cuartos.length === 0){
+    html += `<div class="sv-vacio">El cuadro aún no está armado.<br>Cuando el admin cargue los 8 equipos, aquí llenas tu bracket.</div>`;
+    c.innerHTML = html; conectarLgToggle(c); conectarLgTickets(c); return;
+  }
+
+  saneaPred();
+  const cerrado = LG.deadline && LG.deadline <= new Date();
+
+  // aviso de cierre / countdown
+  if(cerrado){
+    html += `<div class="sv-msg ok">El cuadro ya se congeló (arrancaron los cuartos). Tu bracket quedó fijo.</div>`;
+  } else if(LG.deadline){
+    html += `<div class="sv-msg ok" style="background:rgba(182,255,60,.10)">El cuadro se congela al arrancar cuartos · <b>${fechaHora(LG.deadline)}</b></div>`;
+  }
+
+  html += `<div class="lg-instru">Predice todo el cuadro: quién <b>avanza</b> en cada serie de cuartos, tus <b>2 finalistas</b> y el <b>campeón</b>. Puntos: cuartos <b>3</b>, finalista <b>5</b>, campeón <b>10</b>.</div>`;
+
+  // ------- CUARTOS -------
+  html += `<div class="lg-ronda"><div class="lg-ronda-tit"><h3>Cuartos</h3><span class="pts">3 pts c/u</span></div>`;
+  cuartos.forEach(s=>{
+    const selA = LG.pred.cuartos[s.slot]===s.equipo_a_id, selB = LG.pred.cuartos[s.slot]===s.equipo_b_id;
+    html += `<div class="lg-serie">
+      <div class="lg-lados">
+        ${lgLado(s.ea, s.seed_a, selA, cerrado, `data-cua="${s.slot}" data-eq="${s.equipo_a_id}"`)}
+        <div class="lg-vs">vs</div>
+        ${lgLado(s.eb, s.seed_b, selB, cerrado, `data-cua="${s.slot}" data-eq="${s.equipo_b_id}"`)}
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // ------- SEMIS -------
+  const semis = semisDerivadas();
+  html += `<div class="lg-ronda"><div class="lg-ronda-tit"><h3>Semifinales · tus finalistas</h3><span class="pts">5 pts c/u</span></div>`;
+  if(!semis){
+    html += `<div class="lg-hint">Elige quién avanza en las 4 series de cuartos para ver las semifinales.</div>`;
+  } else {
+    semis.forEach(s=>{
+      const selA = LG.pred.semis[s.dslot]===s.a.equipo_id, selB = LG.pred.semis[s.dslot]===s.b.equipo_id;
+      html += `<div class="lg-serie">
+        <div class="lg-lados">
+          ${lgLado(s.a.eq, s.a.seed, selA, cerrado, `data-sem="${s.dslot}" data-eq="${s.a.equipo_id}"`)}
+          <div class="lg-vs">vs</div>
+          ${lgLado(s.b.eq, s.b.seed, selB, cerrado, `data-sem="${s.dslot}" data-eq="${s.b.equipo_id}"`)}
+        </div>
+      </div>`;
+    });
+  }
+  html += `</div>`;
+
+  // ------- FINAL / CAMPEÓN -------
+  html += `<div class="lg-ronda"><div class="lg-ronda-tit"><h3>Final · tu campeón</h3><span class="pts">10 pts</span></div>`;
+  const f1 = semis ? LG.pred.semis[1] : null, f2 = semis ? LG.pred.semis[2] : null;
+  if(!f1 || !f2){
+    html += `<div class="lg-hint">Elige tus 2 finalistas para escoger campeón.</div>`;
+  } else {
+    const semisArr = semis;
+    const fa = (semisArr[0].a.equipo_id===f1)? semisArr[0].a : semisArr[0].b;
+    const fb = (semisArr[1].a.equipo_id===f2)? semisArr[1].a : semisArr[1].b;
+    const selA = LG.pred.campeon===fa.equipo_id, selB = LG.pred.campeon===fb.equipo_id;
+    html += `<div class="lg-campeon"><div class="clbl">★ Campeón</div>
+      <div class="lg-lados">
+        ${lgLado(fa.eq, fa.seed, selA, cerrado, `data-camp="1" data-eq="${fa.equipo_id}"`)}
+        <div class="lg-vs">vs</div>
+        ${lgLado(fb.eq, fb.seed, selB, cerrado, `data-camp="1" data-eq="${fb.equipo_id}"`)}
+      </div></div>`;
+  }
+  html += `</div>`;
+
+  // completo?
+  const completo = Object.keys(LG.pred.cuartos).filter(k=>LG.pred.cuartos[k]).length===4
+    && LG.pred.semis[1] && LG.pred.semis[2] && LG.pred.campeon;
+
+  if(!cerrado){
+    html += `<button class="sv-guardar" id="lg-guardar" ${completo?'':'disabled'}>
+      ${completo?'Guardar mi bracket':'Completa todo el cuadro'}</button>`;
+  }
+  html += `<div id="lg-msg"></div>`;
+
+  // ------- CAPA B (pronósticos por ronda) -------
+  html += renderCapaB();
+
+  c.innerHTML = html;
+  conectarLgToggle(c);
+  conectarLgTickets(c);
+  if(!cerrado) conectarLgBracket(c);
+  conectarCapaB(c);
+  arrancaCountdowns();
+}
+
+// ------- CAPA B: pronósticos L/E/V de ida y vuelta por serie viva -------
+const LG_PTS_B = { cuartos:1, semis:2, final:3 };
+function lgCasaSerie(s, p){
+  return (s.equipo_a_id===p.equipo_local_id && s.equipo_b_id===p.equipo_visitante_id)
+      || (s.equipo_a_id===p.equipo_visitante_id && s.equipo_b_id===p.equipo_local_id);
+}
+function renderCapaB(){
+  if(!LG.capBpartidos){
+    return `<div class="lg-ronda" style="margin-top:22px">
+      <div class="lg-ronda-tit"><h3>Pronósticos por ronda (L/E/V)</h3></div>
+      <div class="lg-hint">Se habilitan cuando el admin cargue los partidos de la liguilla (cuartos, semis y final).</div></div>`;
+  }
+  let html = `<div class="lg-ronda" style="margin-top:22px">
+    <div class="lg-ronda-tit"><h3>Pronósticos por ronda (L/E/V)</h3></div>
+    <div class="lg-instru">Marca L/E/V de la <b>ida</b> y la <b>vuelta</b> de cada serie ya definida. Cada partido cierra en su propio arranque. Puntos por partido: cuartos <b>1</b>, semis <b>2</b>, final <b>3</b>.</div>`;
+  let algo = false;
+  ["cuartos","semis","final"].forEach(ronda=>{
+    const arr = (LG.series[ronda]||[]).filter(s=>s.equipo_a_id && s.equipo_b_id);
+    const conPartidos = arr.map(s=>({
+      s, legs: LG.partidos.filter(p=>lgCasaSerie(s,p)).slice().sort((a,b)=> new Date(a.kickoff)-new Date(b.kickoff))
+    })).filter(x=>x.legs.length);
+    if(!conPartidos.length) return;
+    algo = true;
+    const pts = LG_PTS_B[ronda];
+    html += `<div class="lg-ronda-tit" style="margin-top:14px"><h3 style="font-size:16px">${RONDA_NOMBRE[ronda]}</h3><span class="pts">${pts} pt${pts>1?'s':''} c/u</span></div>`;
+    conPartidos.forEach(({legs})=>{
+      legs.forEach((p,i)=> html += filaCapaB(p, i===0?'Ida':'Vuelta'));
+    });
+  });
+  if(!algo){
+    html += `<div class="lg-hint">Aún no hay series con ambos equipos definidos y partidos cargados.</div>`;
+  } else {
+    html += `<button class="sv-guardar" id="lg-guardarB">Guardar pronósticos</button><div id="lg-msgB"></div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+function filaCapaB(p, etiqueta){
+  const cerrado = new Date(p.kickoff) <= new Date() || p.pospuesto || p.bloqueado_manual;
+  const pick = LG.pbSel[p.id] || null;
+  let estado = '';
+  if(p.pospuesto) estado = `<span class="qn-flag posp">pospuesto</span>`;
+  else if(p.bloqueado_manual) estado = `<span class="qn-flag posp">bloqueado</span>`;
+  let botones = '';
+  ['L','E','V'].forEach(op=>{
+    const sel = pick===op;
+    botones += `<button class="qn-lev ${sel?'sel':''}" data-levb="${op}" data-part="${p.id}" ${cerrado?'disabled':''}>${op}</button>`;
+  });
+  return `
+  <div class="qn-partido ${cerrado?'cerrado':''}">
+    <div class="qn-part-top">
+      <span class="lg-leg-tag">${etiqueta}</span>
+      ${estado}
+      <span class="qn-cd" data-countdown="${p.kickoff}" data-prefijo="cierra en " data-cerrado-label="cerrado 🔒"></span>
+    </div>
+    <div class="qn-matchup">
+      <div class="qn-eq">${escudoMini(p.loc)}<span>${escapa(p.loc?.nombre_corto||p.loc?.nombre||'?')}</span></div>
+      <div class="qn-lev-box">${botones}</div>
+      <div class="qn-eq">${escudoMini(p.vis)}<span>${escapa(p.vis?.nombre_corto||p.vis?.nombre||'?')}</span></div>
+    </div>
+  </div>`;
+}
+function conectarCapaB(c){
+  c.querySelectorAll(".qn-lev[data-levb]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      const pid=b.dataset.part, op=b.dataset.levb;
+      LG.pbSel[pid] = (LG.pbSel[pid]===op) ? null : op;
+      c.querySelectorAll(`.qn-lev[data-levb][data-part="${pid}"]`).forEach(x=>
+        x.classList.toggle("sel", x.dataset.levb===LG.pbSel[pid]));
+    });
+  });
+  const g = $("lg-guardarB");
+  if(g) g.addEventListener("click", guardarCapaB);
+}
+async function guardarCapaB(){
+  const g = $("lg-guardarB"), msg = $("lg-msgB");
+  if(!LG.ticketSel){ msg.innerHTML = `<div class="sv-msg err">Elige un boleto primero.</div>`; return; }
+  g.disabled = true; g.textContent = "Guardando…"; msg.innerHTML = "";
+  const ahora = new Date();
+  const abiertos = LG.partidos.filter(p=> !(new Date(p.kickoff)<=ahora || p.pospuesto || p.bloqueado_manual));
+  const filas = [];
+  abiertos.forEach(p=>{
+    const v = LG.pbSel[p.id];
+    if(v==='L'||v==='E'||v==='V'){
+      filas.push({ torneo_id:LG.torneo.id, ticket_id:LG.ticketSel, partido_id:p.id, pronostico:v });
+    }
+  });
+  if(!filas.length){
+    msg.innerHTML = `<div class="sv-msg err">No hay pronósticos en partidos abiertos.</div>`;
+    g.disabled = false; g.textContent = "Guardar pronósticos"; return;
+  }
+  const { error } = await sb.from("liguilla_pick")
+    .upsert(filas, { onConflict:'ticket_id,partido_id' });
+  if(error){
+    msg.innerHTML = `<div class="sv-msg err">${escapa(traduceCapaB(error.message))}</div>`;
+    g.disabled = false; g.textContent = "Guardar pronósticos"; return;
+  }
+  filas.forEach(f=> LG.picksB[f.partido_id] = f.pronostico);
+  msg.innerHTML = `<div class="sv-msg ok">¡Pronósticos guardados!</div>`;
+  g.disabled = false; g.textContent = "Guardar pronósticos";
+  setTimeout(()=>{ const m=msg.querySelector('.sv-msg'); if(m) m.remove(); }, 2500);
+}
+function traduceCapaB(m){
+  m = (m||"").toLowerCase();
+  if(m.includes("row-level security")) return "No tienes permiso para editar este boleto.";
+  if(m.includes("arranco")) return "Uno o más partidos ya arrancaron; esos no se guardaron.";
+  if(m.includes("bloqueado")) return "Ese partido está bloqueado por el admin.";
+  return "No se pudo guardar: "+m;
+}
+
+function conectarLgToggle(c){
+  c.querySelectorAll(".sv-toggle button").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      if(LG.vista!==b.dataset.lv){ LG.vista=b.dataset.lv; renderLiguilla($("contenido")); }
+    });
+  });
+}
+function conectarLgTickets(c){
+  c.querySelectorAll("[data-ltk]").forEach(el=>{
+    el.addEventListener("click", async ()=>{
+      if(LG.ticketSel===el.dataset.ltk) return;
+      LG.ticketSel = el.dataset.ltk;
+      await pantallaLiguilla($("contenido"));
+    });
+  });
+}
+function conectarLgBracket(c){
+  // cuartos
+  c.querySelectorAll("[data-cua]").forEach(el=>{
+    if(el.classList.contains("dis")) return;
+    el.addEventListener("click", ()=>{
+      const slot = el.dataset.cua, eq = el.dataset.eq;
+      LG.pred.cuartos[slot] = (LG.pred.cuartos[slot]===eq) ? null : eq;
+      renderLiguilla($("contenido"));
+    });
+  });
+  // semis (finalistas)
+  c.querySelectorAll("[data-sem]").forEach(el=>{
+    if(el.classList.contains("dis")) return;
+    el.addEventListener("click", ()=>{
+      const dslot = el.dataset.sem, eq = el.dataset.eq;
+      LG.pred.semis[dslot] = (LG.pred.semis[dslot]===eq) ? null : eq;
+      renderLiguilla($("contenido"));
+    });
+  });
+  // campeón
+  c.querySelectorAll("[data-camp]").forEach(el=>{
+    if(el.classList.contains("dis")) return;
+    el.addEventListener("click", ()=>{
+      const eq = el.dataset.eq;
+      LG.pred.campeon = (LG.pred.campeon===eq) ? null : eq;
+      renderLiguilla($("contenido"));
+    });
+  });
+  const g = $("lg-guardar");
+  if(g) g.addEventListener("click", guardarBracket);
+}
+
+async function guardarBracket(){
+  const g = $("lg-guardar"), msg = $("lg-msg");
+  const semis = semisDerivadas();
+  if(!semis || !LG.pred.semis[1] || !LG.pred.semis[2] || !LG.pred.campeon){
+    msg.innerHTML = `<div class="sv-msg err">Completa cuartos, finalistas y campeón antes de guardar.</div>`; return;
+  }
+  g.disabled = true; g.textContent = "Guardando…"; msg.innerHTML = "";
+
+  const cuartos = (LG.series.cuartos||[]).slice().sort((a,b)=>a.slot-b.slot);
+  const filas = [];
+  cuartos.forEach(s=>{
+    filas.push({ torneo_id:LG.torneo.id, ticket_id:LG.ticketSel, ronda:'cuartos',
+      slot:s.slot, equipo_pred_id:LG.pred.cuartos[s.slot], es_pick_campeon:false });
+  });
+  [1,2].forEach(dslot=>{
+    filas.push({ torneo_id:LG.torneo.id, ticket_id:LG.ticketSel, ronda:'semis',
+      slot:dslot, equipo_pred_id:LG.pred.semis[dslot], es_pick_campeon:false });
+  });
+  filas.push({ torneo_id:LG.torneo.id, ticket_id:LG.ticketSel, ronda:'final',
+    slot:1, equipo_pred_id:LG.pred.campeon, es_pick_campeon:true });
+
+  const { error } = await sb.from("liguilla_bracket")
+    .upsert(filas, { onConflict:'ticket_id,ronda,slot' });
+  if(error){
+    msg.innerHTML = `<div class="sv-msg err">${escapa(traduceLiguilla(error.message))}</div>`;
+    g.disabled = false; g.textContent = "Guardar mi bracket"; return;
+  }
+  msg.innerHTML = `<div class="sv-msg ok">¡Bracket guardado!</div>`;
+  g.disabled = false; g.textContent = "Guardar mi bracket";
+  setTimeout(()=>{ const m=msg.querySelector('.sv-msg'); if(m) m.remove(); }, 2500);
+}
+
+function traduceLiguilla(m){
+  m = (m||"").toLowerCase();
+  if(m.includes("row-level security")) return "No tienes permiso para editar este boleto.";
+  if(m.includes("arranco") || m.includes("cerro") || m.includes("bloqueado")) return "El cuadro ya se congeló; no se puede editar.";
+  return "No se pudo guardar: "+m;
+}
+
+// ---- vista El grupo: cuadro real + ranking ----
+async function renderLiguillaGrupo(){
+  const cont = $("lg-grupo"); if(!cont) return;
+  let html = "";
+
+  // 1) CUADRO REAL
+  html += `<div class="grp-seccion"><h3>El cuadro</h3>`;
+  const cuartos = LG.series.cuartos||[];
+  if(cuartos.length===0){
+    html += `<div class="grp-locked">El cuadro aún no está armado.</div>`;
+  } else {
+    ["cuartos","semis","final"].forEach(ronda=>{
+      const arr = LG.series[ronda]||[];
+      if(!arr.length) return;
+      html += `<div class="lg-ronda-tit" style="margin-top:8px"><h3 style="font-size:15px">${RONDA_NOMBRE[ronda]}</h3></div>`;
+      arr.forEach(s=>{
+        const av = s.equipo_avanza_id;
+        const aAv = av===s.equipo_a_id, bAv = av===s.equipo_b_id;
+        const campeon = ronda==='final' && av;
+        html += `<div class="lg-real-serie">
+          <div class="par">
+            <span class="${aAv?'avanza':''}" style="display:flex;align-items:center;gap:6px">${escudoMini(s.ea)}<span class="eqn">${escapa(s.ea?.nombre_corto||s.ea?.nombre||'—')}</span></span>
+            <span class="vs">vs</span>
+            <span class="${bAv?'avanza':''}" style="display:flex;align-items:center;gap:6px">${escudoMini(s.eb)}<span class="eqn">${escapa(s.eb?.nombre_corto||s.eb?.nombre||'—')}</span></span>
+          </div>
+          <div class="marca ${av?'ok':''}">${campeon?'★ campeón':(av?'avanza ✓':'pendiente')}</div>
+        </div>`;
+      });
+    });
+  }
+  html += `</div>`;
+
+  // 2) RANKING
+  html += `<div class="grp-seccion"><h3>Ranking</h3>`;
+  const { data: rank, error } = await sb.rpc("ranking_liguilla", { p_torneo_id: LG.torneo.id });
+  if(error){
+    html += `<div class="grp-locked">No se pudo cargar (${escapa(error.message)}).</div>`;
+  } else if(!rank || rank.length===0){
+    html += `<div class="grp-locked">Aún no hay puntos. Aparecen cuando empiezan los resultados.</div>`;
+  } else {
+    // nombres de dueños
+    const { data: gtk } = await sb.from("liguilla_ticket")
+      .select("usuario_id, duenio:usuario_id(nombre)").eq("torneo_id", LG.torneo.id);
+    const nombres = {}; (gtk||[]).forEach(t=>{ if(t.usuario_id) nombres[t.usuario_id]=t.duenio?.nombre||'—'; });
+    html += `<div class="lg-rank">
+      <div class="lg-rank-head"><span class="c-pos">#</span><span class="c-nom">Boleto</span>
+        <span class="c-tot">Tot</span><span class="c-a">A</span><span class="c-b">B</span></div>`;
+    rank.forEach(f=>{
+      const yo = nombres[f.usuario_id]!==undefined && f.usuario_id===perfil.id;
+      html += `<div class="lg-rank-fila ${yo?'yo':''}">
+        <span class="c-pos">${f.lugar}</span>
+        <span class="c-nom"><div class="ap">${escapa(f.apodo)}${f.acerto_campeon?' <span style="color:var(--lima)">★</span>':''}</div>
+          <div class="du">${escapa(nombres[f.usuario_id]||'—')}${yo?' · tú':''}</div></span>
+        <span class="c-tot">${f.pts_total}</span>
+        <span class="c-a">${f.pts_capa_a}</span>
+        <span class="c-b">${f.pts_capa_b}</span>
+      </div>`;
+    });
+    html += `</div>
+      <div class="lg-hint" style="text-align:left;margin-top:8px">A = bracket (Capa A) · B = pronósticos por ronda (Capa B) · ★ = acertó campeón</div>`;
+  }
+  html += `</div>`;
+
+  cont.innerHTML = html;
+}
+// ##### FIN MODALIDAD LIGUILLA #####
 
 // ===================== TRADUCIR ERRORES =====================
 function traduce(msg){

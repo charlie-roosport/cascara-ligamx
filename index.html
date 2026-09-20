@@ -459,6 +459,14 @@
     font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px}
   .qn-lev.sel{background:var(--lima);border-color:var(--lima);color:#06251A}
   .qn-lev:disabled{opacity:.4;cursor:not-allowed}
+  /* resultado ya jugado: el partido finalizado se ve nítido y el pick se colorea */
+  .qn-partido.finalizado{opacity:1}
+  .qn-lev.acerto{background:rgba(182,255,60,.85);border-color:var(--lima);color:#06251A;opacity:1}
+  .qn-lev.fallo{background:rgba(255,90,71,.8);border-color:rgba(255,90,71,.9);color:#2a0a06;opacity:1}
+  .qn-lev.real{box-shadow:0 0 0 2px var(--lima) inset;opacity:1}
+  .qn-est-res{font-size:11px;font-weight:600;margin-left:8px}
+  .qn-est-res.ok{color:var(--lima)}
+  .qn-est-res.no{color:#FF8A7A}
   .qn-goles{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px;
     padding-top:10px;border-top:1px solid var(--linea)}
   .qn-goles-lbl{font-size:12px;color:var(--lima);font-weight:600}
@@ -806,11 +814,14 @@ async function pantallaSurvivor(c){
   SV.jornadasDisponibles = deadlines.map(d => d.jornada);
   SV.deadlinesPorJornada = {};
   deadlines.forEach(d => SV.deadlinesPorJornada[d.jornada] = new Date(d.cierre_survivor));
-  // si el usuario no ha elegido jornada manualmente, ir a la abierta (o la última)
+  // si el usuario no ha elegido jornada manualmente, ir a la jornada EN CURSO:
+  // permanece en la actual hasta que TODOS sus partidos regulares hayan arrancado,
+  // y solo entonces avanza (misma regla que Jornada; ignora pospuestos).
   if(SV.jornadaManual == null){
-    const abierta = deadlines.find(d => new Date(d.cierre_survivor) > ahora);
-    const dl = abierta || deadlines[deadlines.length-1];
-    SV.jornada = dl.jornada;
+    const ja = await jornadaEnCurso(SV.torneo.id);
+    SV.jornada = (ja && SV.jornadasDisponibles.includes(ja))
+      ? ja
+      : deadlines[deadlines.length-1].jornada;
   } else {
     SV.jornada = SV.jornadaManual;
   }
@@ -1107,6 +1118,19 @@ function marcadorHTML(p){
     <span class="et">${fin?'Final':'en vivo'}</span>
     <span class="mk"><b>${lc}</b> ${p.goles_local} <span class="g">–</span> ${p.goles_visitante} <b>${vc}</b></span>
   </div>`;
+}
+
+// Jornada EN CURSO para la vista por defecto: la MENOR jornada (1-17) que todavía
+// tiene algún partido NO pospuesto sin arrancar. Así la vista permanece en la
+// jornada actual hasta que TODOS sus partidos regulares hayan arrancado (cerrado),
+// y solo entonces avanza a la siguiente. Los pospuestos (fecha futura) se ignoran
+// para no arrastrar la vista a una jornada vieja. Devuelve null si no queda ninguna.
+async function jornadaEnCurso(torneoId){
+  const { data } = await sb.from("partido").select("jornada")
+    .eq("torneo_id", torneoId).lte("jornada", 17).eq("pospuesto", false)
+    .gt("kickoff", new Date().toISOString())
+    .order("jornada", { ascending:true }).limit(1);
+  return data?.[0]?.jornada ?? null;
 }
 
 function renderZona(cerrada, t){
@@ -1676,16 +1700,11 @@ async function pantallaQuiniela(c){
   QN.jornadasDisp = [...new Set((js||[]).map(x=>x.jornada))];
   if(QN.jornadasDisp.length===0){ c.innerHTML=`<div class="sv-vacio">Aún no hay partidos cargados.</div>`; return; }
 
-  // jornada por default: la primera con algún partido sin arrancar; si todas arrancaron, la última
+  // jornada por default: la jornada EN CURSO (helper compartido con Survivor).
+  // Permanece en la actual hasta que cierre; ignora pospuestos. Solo 1-17.
   if(!QN._jornadaTocada){
-    const ahora = new Date();
-    let elegida = null;
-    for(const j of QN.jornadasDisp){
-      const { data: pp } = await sb.from("partido").select("kickoff")
-        .eq("torneo_id",QN.torneo.id).eq("jornada",j).order("kickoff").limit(1);
-      if(pp && pp[0] && new Date(pp[0].kickoff) > ahora){ elegida = j; break; }
-    }
-    QN.jornada = elegida || QN.jornadasDisp[QN.jornadasDisp.length-1];
+    const ja = await jornadaEnCurso(QN.torneo.id);
+    QN.jornada = ja || QN.jornadasDisp[QN.jornadasDisp.length-1];
   }
 
   // partidos de la jornada
@@ -1797,6 +1816,8 @@ function filaPartidoQuiniela(p, bloqueado){
   const pick = QN.misPicks[p.id] || null;
   const escL = escudoMini(p.loc), escV = escudoMini(p.vis);
   const estrella = p.es_estrella;
+  const res = resultadoLEV(p);            // L/E/V real, o null
+  const finalizado = p.status === 'FT';   // solo colorear al terminar, no en vivo
 
   let estado = '';
   if(p.pospuesto) estado = `<span class="qn-flag posp">pospuesto</span>`;
@@ -1806,23 +1827,39 @@ function filaPartidoQuiniela(p, bloqueado){
   ['L','E','V'].forEach(op=>{
     const sel = pick===op;
     const dis = cerrado || bloqueado;
-    botones += `<button class="qn-lev ${sel?'sel':''}" data-lev="${op}" data-part="${p.id}" ${dis?'disabled':''}>${op}</button>`;
+    // coloreado por resultado (solo si terminó): mi pick verde/rojo; el resultado real, contorno
+    let cls = sel ? 'sel' : '';
+    if(finalizado && res){
+      if(sel) cls = (op===res) ? 'acerto' : 'fallo';
+      else if(op===res) cls = 'real';
+    }
+    botones += `<button class="qn-lev ${cls}" data-lev="${op}" data-part="${p.id}" ${dis?'disabled':''}>${op}</button>`;
   });
 
   // input de goles solo si es estrella
   let golesInput = '';
   if(estrella){
     const val = QN.misGoles[p.id];
+    let resGoles = '';
+    if(finalizado && tieneMarcador(p)){
+      const totalReal = p.goles_local + p.goles_visitante;
+      if(val != null && val !== ''){
+        const ok = Number(val) === totalReal;
+        resGoles = `<span class="qn-est-res ${ok?'ok':'no'}">${ok?'✓ +1':'✗'} (real: ${totalReal})</span>`;
+      } else {
+        resGoles = `<span class="qn-est-res no">(real: ${totalReal})</span>`;
+      }
+    }
     golesInput = `
     <div class="qn-goles">
       <span class="qn-goles-lbl">★ goles totales del partido</span>
       <input type="number" min="0" max="20" class="qn-num" data-goles="${p.id}"
-        value="${val??''}" ${cerrado||bloqueado?'disabled':''} placeholder="—">
+        value="${val??''}" ${cerrado||bloqueado?'disabled':''} placeholder="—">${resGoles}
     </div>`;
   }
 
   return `
-  <div class="qn-partido ${estrella?'es-estrella':''} ${cerrado?'cerrado':''}">
+  <div class="qn-partido ${estrella?'es-estrella':''} ${cerrado?'cerrado':''} ${finalizado?'finalizado':''}">
     <div class="qn-part-top">
       ${estrella?'<span class="qn-star">★ ESTRELLA</span>':''}
       ${estado}
@@ -1833,6 +1870,7 @@ function filaPartidoQuiniela(p, bloqueado){
       <div class="qn-lev-box">${botones}</div>
       <div class="qn-eq">${escV}<span>${escapa(p.vis.nombre_corto||p.vis.nombre)}</span></div>
     </div>
+    ${marcadorHTML(p)}
     ${golesInput}
   </div>`;
 }

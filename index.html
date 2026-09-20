@@ -356,6 +356,18 @@
   .grp-conteo{display:flex;gap:12px;justify-content:center;margin-top:8px;font-size:12px;color:var(--pizarra)}
   .grp-conteo b{color:var(--hueso)}
 
+  /* marcador real del partido (reutilizado en El grupo y Mis picks) */
+  .marcador{display:flex;flex-direction:column;align-items:center;gap:2px;margin:6px 0 2px}
+  .marcador .et{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--pizarra)}
+  .marcador.vivo .et{color:var(--lima)}
+  .marcador .mk{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--hueso)}
+  .marcador .mk .g{color:var(--pizarra);margin:0 3px;font-weight:400}
+  /* lado propio coloreado por resultado en Mis picks */
+  .sv-lado.gano{background:rgba(182,255,60,.16);border-color:var(--lima);opacity:1;cursor:default}
+  .sv-lado.gano .nom{color:var(--lima)}
+  .sv-lado.perdio{background:rgba(255,90,71,.16);border-color:rgba(255,90,71,.6);opacity:1;cursor:default}
+  .sv-lado.perdio .nom{color:#FF8A7A}
+
   /* listado compacto: partidos que nadie eligió */
   .grp-nadie{margin-top:14px;padding:12px;border:1px dashed var(--linea);border-radius:var(--radio)}
   .grp-nadie .titu{font-size:11px;color:var(--pizarra);text-transform:uppercase;
@@ -816,7 +828,7 @@ async function pantallaSurvivor(c){
 
   // 4. partidos de la jornada
   const { data: parts } = await sb.from("partido")
-    .select("id, jornada, kickoff, equipo_local_id, equipo_visitante_id, "+
+    .select("id, jornada, kickoff, goles_local, goles_visitante, status, equipo_local_id, equipo_visitante_id, "+
             "loc:equipo_local_id(nombre,nombre_corto,escudo_url,color), vis:equipo_visitante_id(nombre,nombre_corto,escudo_url,color)")
     .eq("torneo_id", SV.torneo.id).eq("jornada", SV.jornada).order("kickoff");
   SV.partidos = parts || [];
@@ -1032,6 +1044,7 @@ async function renderGrupo(){
     html += `<div class="grp-partido">
       <div class="mt">${escLoc} ${escapa(p.loc.nombre_corto||p.loc.nombre)} <span style="color:var(--pizarra)">vs</span> ${escapa(p.vis.nombre_corto||p.vis.nombre)} ${escVis}</div>
       <div class="hr">${fechaHora(p.kickoff)}</div>`;
+    html += marcadorHTML(p);
     if(!cerrado){
       html += `<div class="grp-locked"><span class="cand">🔒</span>Los picks se revelan cuando arranca el partido</div>`;
     } else {
@@ -1044,7 +1057,7 @@ async function renderGrupo(){
       });
       html += `</div>
       <div class="grp-conteo">
-        <span><b>${cLoc}</b> ${escapa(p.loc.nombre_corto||'L')}</span>
+        <span>Eligieron: <b>${cLoc}</b> ${escapa(p.loc.nombre_corto||'L')}</span>
         <span><b>${cVis}</b> ${escapa(p.vis.nombre_corto||'V')}</span>
       </div>`;
     }
@@ -1073,6 +1086,27 @@ function escudoMini(eq){
   if(eq && eq.escudo_url && String(eq.escudo_url).startsWith('http'))
     return `<img class="mini" src="${eq.escudo_url}" alt="${escapa(eq.nombre)}">`;
   return `<span class="mini-mono" style="display:inline-flex;width:22px;height:22px;background:${(eq&&eq.color)||'#8A9490'};font-size:9px">${escapa((eq&&eq.nombre_corto)||'?')}</span>`;
+}
+
+// ¿el partido ya tiene marcador cargado? (goles no nulos)
+function tieneMarcador(p){ return p && p.goles_local != null && p.goles_visitante != null; }
+// resultado L/E/V del partido, o null si no hay marcador
+function resultadoLEV(p){
+  if(!tieneMarcador(p)) return null;
+  if(p.goles_local > p.goles_visitante) return 'L';
+  if(p.goles_local < p.goles_visitante) return 'V';
+  return 'E';
+}
+// HTML del marcador real: "PUE 1 – 1 ATL". Etiqueta "Final" si status FT, si no "en vivo".
+function marcadorHTML(p){
+  if(!tieneMarcador(p)) return '';
+  const fin = p.status === 'FT';
+  const lc = escapa(p.loc?.nombre_corto || p.loc?.nombre || 'L');
+  const vc = escapa(p.vis?.nombre_corto || p.vis?.nombre || 'V');
+  return `<div class="marcador ${fin?'final':'vivo'}">
+    <span class="et">${fin?'Final':'en vivo'}</span>
+    <span class="mk"><b>${lc}</b> ${p.goles_local} <span class="g">–</span> ${p.goles_visitante} <b>${vc}</b></span>
+  </div>`;
 }
 
 function renderZona(cerrada, t){
@@ -1112,21 +1146,34 @@ function renderZona(cerrada, t){
     // un lado no es seleccionable si: equipo ya usado, el partido ya arrancó, o el turno está bloqueado
     const bloqLoc = usadoLoc || arrancado || bloqueadoTurno;
     const bloqVis = usadoVis || arrancado || bloqueadoTurno;
+    // clases visuales de cada lado: si el partido ya tiene marcador y ese lado
+    // es MI pick de la jornada, se pinta verde/rojo (nítido); si no, estado normal.
+    const resP = resultadoLEV(p);
+    const finalizado = p.status === 'FT';   // solo pintar acierto/fallo al terminar, no en vivo
+    const miPick = SV.pickActual?.equipo_id;
+    const claseLado = (equipoId, esLocal, elegido, bloq)=>{
+      if(finalizado && resP && miPick === equipoId){
+        const gano = (esLocal && resP==='L') || (!esLocal && resP==='V');
+        return gano ? 'gano' : 'perdio';
+      }
+      return `${elegido?'elegido':''} ${bloq?'usado':''}`.trim();
+    };
     html += `
     <div class="sv-partido ${arrancado?'arrancado':''}">
       <div class="hora">${fechaHora(p.kickoff)}</div>
       <div class="sv-cd ${arrancado?'cd-cerrado':''}" data-countdown="${p.kickoff}" data-prefijo="arranca en " data-cerrado-label="ya arrancó 🔒"></div>
       <div class="sv-lados">
-        <div class="sv-lado ${elLoc?'elegido':''} ${bloqLoc?'usado':''}"
+        <div class="sv-lado ${claseLado(p.equipo_local_id, true, elLoc, bloqLoc)}"
              data-eq="${p.equipo_local_id}" data-part="${p.id}" data-bloq="${bloqLoc?1:0}">
           ${escudoHTML(p.loc)}<div class="nom">${escapa(p.loc.nombre)}</div><div class="cl">local</div>
         </div>
         <div class="sv-vs">vs</div>
-        <div class="sv-lado ${elVis?'elegido':''} ${bloqVis?'usado':''}"
+        <div class="sv-lado ${claseLado(p.equipo_visitante_id, false, elVis, bloqVis)}"
              data-eq="${p.equipo_visitante_id}" data-part="${p.id}" data-bloq="${bloqVis?1:0}">
           ${escudoHTML(p.vis)}<div class="nom">${escapa(p.vis.nombre)}</div><div class="cl">visitante</div>
         </div>
       </div>
+      ${marcadorHTML(p)}
     </div>`;
   });
 

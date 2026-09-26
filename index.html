@@ -496,6 +496,32 @@
   .qn-rank-fila .c-des{font-size:11px;color:var(--pizarra);white-space:nowrap;text-align:right}
   .qn-rank-head .c-pts,.qn-rank-head .c-des{text-align:right}
 
+  /* Picks del grupo (Jornada) + matriz acumulada */
+  .pg-wrap{overflow-x:auto;border:1px solid var(--linea);border-radius:var(--radio);-webkit-overflow-scrolling:touch}
+  .pg-tabla{border-collapse:separate;border-spacing:0;font-size:13px;min-width:100%}
+  .pg-tabla th,.pg-tabla td{padding:6px 4px;text-align:center;border-top:1px solid var(--linea);white-space:nowrap}
+  .pg-tabla thead th{border-top:none;background:rgba(6,37,26,.85);font-size:10px;color:var(--pizarra);
+    font-weight:600;vertical-align:bottom}
+  .pg-tabla .pg-nom{position:sticky;left:0;z-index:1;background:#0d4633;text-align:left;
+    max-width:110px;overflow:hidden;text-overflow:ellipsis;padding-left:10px}
+  .pg-tabla thead .pg-nom{background:#08301f;z-index:2}
+  .pg-tabla tr.yo td{background:rgba(182,255,60,.1)}
+  .pg-tabla tr.yo .pg-nom{background:#2c5a2f}
+  .pg-col img.mini,.pg-col .mini-mono{width:18px;height:18px;display:block;margin:0 auto 1px}
+  .pg-col .vs{font-size:9px;opacity:.6;line-height:1}
+  .pg-col.est{color:var(--lima)}
+  .pg-cel{display:inline-flex;flex-direction:column;align-items:center;min-width:26px}
+  .pg-p{display:inline-block;min-width:24px;padding:3px 0;border-radius:6px;font-family:'Barlow Condensed',sans-serif;
+    font-weight:700;font-size:15px;background:rgba(242,244,239,.08)}
+  .pg-p.ok{background:rgba(182,255,60,.85);color:#06251A}
+  .pg-p.no{background:rgba(255,90,71,.8);color:#2a0a06}
+  .pg-g{font-size:10px;color:var(--pizarra);margin-top:2px}
+  .pg-g.ok{color:var(--lima);font-weight:600}
+  .pg-lock{opacity:.55;font-size:12px}
+  .pg-nada{color:var(--pizarra)}
+  .pg-pts{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;color:var(--lima)}
+  .pg-nota{font-size:11px;color:var(--pizarra);margin:8px 2px 0;line-height:1.4}
+
   /* ---------- LIGUILLA (bracket) ---------- */
   .lg-instru{font-size:14px;color:var(--pizarra);margin:14px 0 12px;line-height:1.5}
   .lg-instru b{color:var(--hueso)}
@@ -1676,7 +1702,7 @@ async function adCierre(){
 // =====================================================================
 const QN = { torneo:null, jornada:1, partidos:[], jornadasDisp:[],
              insc:null, misPicks:{}, misGoles:{}, totalJornada:null,
-             vista:'picks', etapas:[], etapaSel:null, ranJornada:null };
+             vista:'picks', etapas:[], etapaSel:null, ranJornada:null, cierreJornada:null };
 
 async function pantallaQuiniela(c){
   c.innerHTML = `<p style="color:var(--pizarra)">Cargando…</p>`;
@@ -1732,7 +1758,15 @@ async function pantallaQuiniela(c){
     else QN.totalJornada = r.pred_goles_totales;
   });
 
+  // cierre del total de goles de la jornada (= cierre Survivor de la jornada)
+  const { data: cj } = await sb.rpc("cierre_jornada_quiniela", { p_torneo_id:QN.torneo.id, p_jornada:QN.jornada });
+  QN.cierreJornada = cj || null;
+
   renderQuiniela(c);
+}
+
+function totalJornadaCerrado(){
+  return QN.cierreJornada ? (new Date(QN.cierreJornada) <= new Date()) : false;
 }
 
 function renderQuiniela(c){
@@ -1759,8 +1793,17 @@ function renderQuiniela(c){
   html += `
   <div class="sv-toggle">
     <button data-qv="picks" class="${QN.vista==='picks'?'activa':''}">Mis picks</button>
+    <button data-qv="grupo" class="${QN.vista==='grupo'?'activa':''}">Picks del grupo</button>
     <button data-qv="tabla" class="${QN.vista==='tabla'?'activa':''}">Tablas</button>
   </div>`;
+
+  if(QN.vista==='grupo'){
+    html += `<div id="qn-grupo"><p style="color:var(--pizarra)">Cargando picks del grupo…</p></div>`;
+    c.innerHTML = html;
+    conectarQnControles(c);
+    renderPicksGrupo();
+    return;
+  }
 
   if(QN.vista==='tabla'){
     html += `<div id="qn-tabla"><p style="color:var(--pizarra)">Cargando tabla…</p></div>`;
@@ -1796,9 +1839,10 @@ function renderQuiniela(c){
   // total de la jornada (desempate)
   html += `
   <div class="qn-total">
-    <div class="qn-total-lbl">Total de goles de <b>toda la jornada</b> <span class="qn-hint">(desempate)</span></div>
+    <div class="qn-total-lbl">Total de goles de <b>toda la jornada</b> <span class="qn-hint">(desempate)</span>
+      ${QN.cierreJornada?`<br><span class="qn-cd" data-countdown="${QN.cierreJornada}" data-prefijo="cierra en " data-cerrado-label="cerrado 🔒"></span>`:''}</div>
     <input type="number" min="0" max="99" id="qn-total-input" class="qn-num-big"
-      value="${QN.totalJornada??''}" ${bloqueado?'disabled':''} placeholder="—">
+      value="${QN.totalJornada??''}" ${(bloqueado||totalJornadaCerrado())?'disabled':''} placeholder="—">
   </div>`;
 
   html += `<button class="sv-guardar" id="qn-guardar" ${bloqueado?'disabled':''}>Guardar mis picks</button>`;
@@ -1930,18 +1974,19 @@ async function guardarQuiniela(){
   const idsAbiertos = abiertos.map(p=>p.id);
 
   const picksLev = [];
-  const golesEstrella = [];
+  const estrellas = {};   // {partido_id: goles | null}  (null = borrar)
   abiertos.forEach(p=>{
     if(QN.misPicks[p.id]){
       picksLev.push({ torneo_id:QN.torneo.id, usuario_id:perfil.id,
         partido_id:p.id, pronostico:QN.misPicks[p.id] });
     }
-    const gv = QN.misGoles[p.id];
-    if(p.es_estrella && gv!==undefined && gv!==null && !isNaN(gv)){
-      golesEstrella.push({ torneo_id:QN.torneo.id, usuario_id:perfil.id,
-        tipo:'jornada', jornada:QN.jornada, partido_id:p.id, pred_goles_totales:gv });
+    if(p.es_estrella){
+      const gv = QN.misGoles[p.id];
+      estrellas[p.id] = (gv!==undefined && gv!==null && !isNaN(gv)) ? gv : null;
     }
   });
+  const totalAbierto = !totalJornadaCerrado();
+  const totalVal = (totalAbierto && QN.totalJornada!==null && !isNaN(QN.totalJornada)) ? QN.totalJornada : null;
 
   try{
     // --- L/E/V: upsert por (usuario,partido) que SÍ tiene unique constraint ---
@@ -1950,25 +1995,11 @@ async function guardarQuiniela(){
         .upsert(picksLev, { onConflict:'usuario_id,partido_id' });
       if(error) throw error;
     }
-    // --- Goles de estrella: borrar los de partidos abiertos de esta jornada y reinsertar ---
-    if(idsAbiertos.length){
-      const { error: eDel } = await sb.from("tiebreaker_pick").delete()
-        .eq("usuario_id",perfil.id).eq("torneo_id",QN.torneo.id)
-        .eq("tipo","jornada").in("partido_id", idsAbiertos);
-      if(eDel) throw eDel;
-    }
-    if(golesEstrella.length){
-      const { error } = await sb.from("tiebreaker_pick").insert(golesEstrella);
-      if(error) throw error;
-    }
-    // --- Total de jornada (partido_id null): borrar el previo y reinsertar si hay valor ---
-    if(QN.totalJornada!==null && !isNaN(QN.totalJornada)){
-      await sb.from("tiebreaker_pick").delete()
-        .eq("usuario_id",perfil.id).eq("torneo_id",QN.torneo.id)
-        .eq("tipo","jornada").eq("jornada",QN.jornada).is("partido_id", null);
-      const { error } = await sb.from("tiebreaker_pick").insert({
-        torneo_id:QN.torneo.id, usuario_id:perfil.id, tipo:'jornada',
-        jornada:QN.jornada, partido_id:null, pred_goles_totales:QN.totalJornada });
+    // --- Goles de estrella + total de jornada: guardado atómico en BD ---
+    if(Object.keys(estrellas).length || totalVal!==null){
+      const { error } = await sb.rpc("guardar_tiebreakers_jornada", {
+        p_torneo_id:QN.torneo.id, p_jornada:QN.jornada,
+        p_estrellas:estrellas, p_total:totalVal });
       if(error) throw error;
     }
     msg.innerHTML = `<div class="sv-msg ok">¡Picks guardados!</div>`;
@@ -1981,6 +2012,7 @@ async function guardarQuiniela(){
 
 function traduceQuiniela(m){
   m=(m||"").toLowerCase();
+  if(m.includes("total de goles de la jornada")) return "El total de goles de la jornada ya cerró.";
   if(m.includes("ya arranco")) return "Uno o más partidos ya arrancaron; esos no se guardaron.";
   if(m.includes("pospuesto")) return "Hay un partido pospuesto; ese no se guardó.";
   if(m.includes("bloqueado")||m.includes("inscrito")) return "Tu inscripción está bloqueada o no estás inscrito.";
@@ -2002,41 +2034,147 @@ async function renderTablas(){
   else { html += tablaRanking(rj, 'jornada'); }
   html += `</div>`;
 
-  // --- ACUMULADA: selector de etapa ---
-  if(QN.etapas.length===0){
-    const { data: et } = await sb.from("etapa_acumulada")
-      .select("*").eq("torneo_id",QN.torneo.id).order("orden");
-    QN.etapas = et || [];
-    if(QN.etapas.length && !QN.etapaSel) QN.etapaSel = QN.etapas[0].id;
-  }
-  html += `<div class="grp-seccion"><h3>Acumulada</h3>`;
-  if(QN.etapas.length===0){
-    html += `<div class="grp-locked">La acumulada aún no tiene etapas configuradas.</div>`;
-  } else {
-    html += `<select class="ad-inp" id="qn-etapa" style="width:auto;margin-bottom:10px">`;
-    QN.etapas.forEach(e=>{
-      html += `<option value="${e.id}" ${e.id===QN.etapaSel?'selected':''}>${escapa(e.nombre)} (J${e.jornada_desde}-${e.jornada_hasta})</option>`;
-    });
-    html += `</select><div id="qn-acum-tabla"><p style="color:var(--pizarra)">Cargando…</p></div>`;
-  }
-  html += `</div>`;
+  // --- ACUMULADA: General (J1-J17) + etapas ---
+  await cargarEtapasQn();
+  html += `<div class="grp-seccion"><h3>Acumulada</h3>${selectorEtapaQn('qn-etapa')}
+    <div id="qn-acum-tabla"><p style="color:var(--pizarra)">Cargando…</p></div></div>`;
 
   cont.innerHTML = html;
 
   const sel=$("qn-etapa");
-  if(sel){
-    sel.addEventListener("change", ()=>{ QN.etapaSel=sel.value; cargarAcumulada(); });
-    cargarAcumulada();
-  }
+  sel.addEventListener("change", ()=>{ QN.etapaSel=sel.value||null; cargarAcumulada(); });
+  cargarAcumulada();
+}
+
+async function cargarEtapasQn(){
+  const { data: et } = await sb.from("etapa_acumulada")
+    .select("*").eq("torneo_id",QN.torneo.id).order("orden");
+  QN.etapas = et || [];
+  if(QN.etapaSel && !QN.etapas.some(e=>e.id===QN.etapaSel)) QN.etapaSel = null;
+}
+
+function selectorEtapaQn(id){
+  let h = `<select class="ad-inp" id="${id}" style="width:auto;margin-bottom:10px">
+    <option value="" ${!QN.etapaSel?'selected':''}>General (J1-J17)</option>`;
+  QN.etapas.forEach(e=>{
+    h += `<option value="${e.id}" ${e.id===QN.etapaSel?'selected':''}>${escapa(e.nombre)} (J${e.jornada_desde}-${e.jornada_hasta})</option>`;
+  });
+  return h + `</select>`;
 }
 
 async function cargarAcumulada(){
   const box=$("qn-acum-tabla"); if(!box) return;
   const { data: ra, error } = await sb.rpc("ranking_acumulada",
-    { p_torneo_id:QN.torneo.id, p_etapa_id:QN.etapaSel });
+    { p_torneo_id:QN.torneo.id, p_etapa_id:QN.etapaSel||null });
   if(error){ box.innerHTML=`<div class="grp-locked">No se pudo cargar (${escapa(error.message)}).</div>`; return; }
-  if(!ra || ra.length===0){ box.innerHTML=`<div class="grp-locked">Aún no hay puntos en esta etapa.</div>`; return; }
+  if(!ra || ra.length===0){ box.innerHTML=`<div class="grp-locked">Aún no hay puntos.</div>`; return; }
   box.innerHTML = tablaRanking(ra, 'acum');
+}
+
+// ---------- PICKS DEL GRUPO (jornada + matriz acumulada) ----------
+async function renderPicksGrupo(){
+  const cont=$("qn-grupo"); if(!cont) return;
+  const [rg, rr] = await Promise.all([
+    sb.rpc("picks_grupo_jornada", { p_torneo_id:QN.torneo.id, p_jornada:QN.jornada }),
+    sb.rpc("ranking_jornada",     { p_torneo_id:QN.torneo.id, p_jornada:QN.jornada })
+  ]);
+  let html = `<div class="grp-seccion"><h3>Picks del grupo · Jornada ${QN.jornada}</h3>`;
+  if(rg.error){ html += `<div class="grp-locked">No se pudo cargar (${escapa(rg.error.message)}).</div>`; }
+  else if(!rg.data || !rg.data.length){ html += `<div class="grp-locked">Aún no hay inscritos.</div>`; }
+  else if(!QN.partidos.length){ html += `<div class="grp-locked">No hay partidos en esta jornada.</div>`; }
+  else { html += tablaPicksGrupo(rg.data, rr.data||[]); }
+  html += `</div>`;
+
+  await cargarEtapasQn();
+  html += `<div class="grp-seccion"><h3>Acumulada · puntos por jornada</h3>${selectorEtapaQn('qn-etapa-g')}
+    <div id="qn-matriz"><p style="color:var(--pizarra)">Cargando…</p></div></div>`;
+  cont.innerHTML = html;
+
+  const sel=$("qn-etapa-g");
+  sel.addEventListener("change", ()=>{ QN.etapaSel=sel.value||null; cargarMatrizAcumulada(); });
+  cargarMatrizAcumulada();
+}
+
+function tablaPicksGrupo(filas, ranking){
+  const ran = {}; ranking.forEach(r=> ran[r.usuario_id]=r);
+  // orden: por lugar de la semanal; los que no rankean (ej. tú bloqueado) al final
+  filas = filas.slice().sort((a,b)=>{
+    const pa = ran[a.usuario_id]?ran[a.usuario_id].pos:9999, pb = ran[b.usuario_id]?ran[b.usuario_id].pos:9999;
+    return pa-pb || String(a.nombre).localeCompare(String(b.nombre));
+  });
+  const ahora = new Date();
+  let h = `<div class="pg-wrap"><table class="pg-tabla"><thead><tr>
+    <th class="pg-nom">Jugador</th><th>Pts</th>`;
+  QN.partidos.forEach(p=>{
+    h += `<th class="pg-col ${p.es_estrella?'est':''}">${escudoMini(p.loc)}<div class="vs">vs</div>${escudoMini(p.vis)}${p.es_estrella?'★':''}</th>`;
+  });
+  h += `<th>Total<br>goles</th></tr></thead><tbody>`;
+
+  filas.forEach(f=>{
+    const r = ran[f.usuario_id];
+    h += `<tr class="${f.es_yo?'yo':''}"><td class="pg-nom">${r?r.pos+'. ':''}${escapa(f.nombre)}${f.es_yo?' <b>(tú)</b>':''}</td>
+      <td class="pg-pts">${r?r.puntos:'—'}</td>`;
+    QN.partidos.forEach(p=>{
+      const pk = (f.picks||{})[p.id];
+      const arranco = new Date(p.kickoff) <= ahora;
+      if(!pk){
+        h += `<td>${(arranco||f.es_yo)?'<span class="pg-nada">—</span>':'<span class="pg-lock">🔒</span>'}</td>`;
+        return;
+      }
+      const fin = p.status==='FT' && tieneMarcador(p) && !p.pospuesto;
+      const res = resultadoLEV(p);
+      let cls = '';
+      if(fin && pk.p) cls = (pk.p===res) ? 'ok' : 'no';
+      let g = '';
+      if(p.es_estrella && pk.g!=null){
+        const gcls = fin ? (pk.ok ? 'ok' : '') : '';
+        g = `<span class="pg-g ${gcls}">⚽${pk.g}${fin&&pk.ok?' +1':''}</span>`;
+      }
+      h += `<td><span class="pg-cel"><span class="pg-p ${cls}">${pk.p||'—'}</span>${g}</span></td>`;
+    });
+    const tot = f.total_oculto ? '<span class="pg-lock">🔒</span>' : (f.pred_total ?? '<span class="pg-nada">—</span>');
+    h += `<td>${tot}</td></tr>`;
+  });
+  h += `</tbody></table></div>
+  <div class="pg-nota">Los picks de cada partido se destapan en su kickoff; el total de goles, al cierre de la jornada. Verde = acertó, rojo = falló (al terminar el partido). ⚽ = goles pronosticados en estrella.</div>`;
+  return h;
+}
+
+async function cargarMatrizAcumulada(){
+  const box=$("qn-matriz"); if(!box) return;
+  const et = QN.etapas.find(e=>e.id===QN.etapaSel);
+  const desde = et ? et.jornada_desde : 1, hasta = et ? et.jornada_hasta : 17;
+  const [rm, ra, rj] = await Promise.all([
+    sb.rpc("matriz_acumulada",  { p_torneo_id:QN.torneo.id, p_etapa_id:QN.etapaSel||null }),
+    sb.rpc("ranking_acumulada", { p_torneo_id:QN.torneo.id, p_etapa_id:QN.etapaSel||null }),
+    sb.from("partido").select("jornada").eq("torneo_id",QN.torneo.id)
+      .not("goles_local","is",null).lte("jornada",17).order("jornada",{ascending:false}).limit(1)
+  ]);
+  const err = rm.error||ra.error;
+  if(err){ box.innerHTML=`<div class="grp-locked">No se pudo cargar (${escapa(err.message)}).</div>`; return; }
+  const ultJugada = (rj.data&&rj.data.length) ? rj.data[0].jornada : 0;
+  const tope = Math.min(hasta, ultJugada);
+  if(!ra.data || !ra.data.length || tope < desde){
+    box.innerHTML=`<div class="grp-locked">Aún no hay jornadas jugadas en este rango.</div>`; return;
+  }
+  const pts = {};
+  (rm.data||[]).forEach(r=>{ (pts[r.usuario_id] = pts[r.usuario_id]||{})[r.jornada] = r.puntos; });
+  let h = `<div class="pg-wrap"><table class="pg-tabla"><thead><tr><th class="pg-nom">Jugador</th><th>Total</th>`;
+  for(let j=desde;j<=tope;j++) h += `<th>J${j}</th>`;
+  h += `</tr></thead><tbody>`;
+  ra.data.forEach(f=>{
+    const yo = f.usuario_id===perfil.id;
+    h += `<tr class="${yo?'yo':''}"><td class="pg-nom">${f.pos}. ${escapa(f.nombre)}${yo?' <b>(tú)</b>':''}</td>
+      <td class="pg-pts">${f.puntos}</td>`;
+    for(let j=desde;j<=tope;j++){
+      const v = (pts[f.usuario_id]||{})[j];
+      h += `<td>${v!=null?v:'<span class="pg-nada">0</span>'}</td>`;
+    }
+    h += `</tr>`;
+  });
+  h += `</tbody></table></div>
+  <div class="pg-nota">Puntos por jornada (L/E/V + goles de estrella). Los pospuestos suman en su jornada cuando se juegan. Orden y desempates como en Tablas.</div>`;
+  box.innerHTML = h;
 }
 
 function tablaRanking(filas, modo){
@@ -2092,7 +2230,7 @@ async function adJornadaSetup(){
   </div>
   <div class="ad-bloque">
     <h3>Etapas de la acumulada</h3>
-    <div class="d">Cada etapa premia al mejor dentro de una ventana de jornadas (ej. J1-J6). Sin etapas, la acumulada no muestra tabla. La semanal no usa etapas.</div>
+    <div class="d">Cada etapa premia al mejor dentro de una ventana de jornadas (ej. J1-J6). La tabla General (J1-J17) siempre se muestra; las etapas son cortes dentro de ella. La semanal no usa etapas.</div>
     <div id="ad-etapas">Cargando…</div>
     <div class="ad-row" style="margin-top:12px;flex-wrap:wrap">
       <input class="ad-inp" id="et-nombre" style="width:130px" placeholder="Nombre" type="text">

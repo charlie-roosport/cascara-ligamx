@@ -756,6 +756,16 @@
   .btn{font-size:21px;padding:16px;transition:transform .12s}
   .btn-primario{box-shadow:0 8px 28px rgba(182,255,60,.22)}
 
+  .lg-pasos{list-style:none;counter-reset:paso;margin:10px 0 8px;display:flex;flex-direction:column;gap:8px}
+  .lg-pasos li{counter-increment:paso;display:flex;align-items:center;gap:12px;background:var(--sup);
+    border:1px solid var(--linea);border-radius:14px;padding:11px 12px;color:var(--hueso)}
+  .lg-pasos li::before{content:counter(paso);flex:0 0 26px;height:26px;border-radius:50%;background:var(--sup-2);
+    color:var(--lima);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;
+    display:flex;align-items:center;justify-content:center}
+  .lg-pasos li span{flex:1;line-height:1.35}
+  .lg-pasos li em{font-style:normal;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;
+    color:var(--oro);white-space:nowrap}
+  .lg-total{font-size:14px;color:var(--pizarra)}
   /* ---------- movimiento ---------- */
   @keyframes pickPop{0%{transform:scale(1)}35%{transform:scale(.92)}70%{transform:scale(1.06)}100%{transform:scale(1)}}
   .pop{animation:pickPop .3s cubic-bezier(.3,1.4,.5,1)}
@@ -2960,7 +2970,15 @@ function renderLiguilla(c){
     html += `<div class="sv-msg ok" style="background:rgba(182,255,60,.10)">El cuadro se congela al arrancar cuartos · <b>${fechaHora(LG.deadline)}</b></div>`;
   }
 
-  html += `<div class="lg-instru">Predice todo el cuadro: quién <b>avanza</b> en cada serie de cuartos, tus <b>2 finalistas</b> y el <b>campeón</b>. Puntos: cuartos <b>3</b>, finalista <b>5</b>, campeón <b>10</b>.</div>`;
+  html += `<div class="lg-instru">
+    <p>Llena tu cuadro de una vez, antes de que arranquen los cuartos:</p>
+    <ol class="lg-pasos">
+      <li><span>En <b>cuartos</b>, elige quién pasa en cada serie.</span><em>3 pts c/u</em></li>
+      <li><span>Con tus 4 ganadores se arman las <b>semis</b>: elige a tus 2 finalistas.</span><em>5 pts c/u</em></li>
+      <li><span>En la <b>final</b>, elige a tu campeón.</span><em>10 pts</em></li>
+    </ol>
+    <p class="lg-total">Los puntos se suman: si atinas todo, son <b>32</b>.</p>
+  </div>`;
 
   // ------- CUARTOS -------
   html += `<div class="lg-ronda"><div class="lg-ronda-tit"><h3>Cuartos</h3><span class="pts">3 pts c/u</span></div>`;

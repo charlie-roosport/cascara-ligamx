@@ -879,6 +879,23 @@ const SUPABASE_URL = "https://jusjfukucehsrtechmyw.supabase.co";
 const SUPABASE_ANON = "sb_publishable_rmNfG7vbUpM385fE5-GaTw_fD29aww1";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
+// ===================== HORA DEL SERVIDOR =====================
+// La app no confía en el reloj del celular: calcula la diferencia contra el
+// servidor y usa esa hora para candados y cuentas regresivas. (El servidor
+// además rechaza cualquier pick tardío por su cuenta.)
+let RELOJ_OFFSET = 0;
+function ahoraSrv(){ return new Date(Date.now() + RELOJ_OFFSET); }
+async function sincronizarHora(){
+  try{
+    const t0 = Date.now();
+    const { data, error } = await sb.rpc("hora_servidor");
+    const t1 = Date.now();
+    const srv = (!error && data) ? new Date(data).getTime() : NaN;
+    if(Number.isFinite(srv)){ RELOJ_OFFSET = srv - (t0 + t1) / 2; }
+  }catch(_){}
+}
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) sincronizarHora(); });
+
 // ===================== ESTADO =====================
 let modoRegistro = false;
 let perfil = null; // fila de la tabla usuario
@@ -954,6 +971,7 @@ function resetBtn(){
 
 // ===================== ENTRAR A LA APP =====================
 async function entrar(){
+  await sincronizarHora();
   // asegurar perfil
   const { data: sesion } = await sb.auth.getUser();
   if(!sesion.user){ aviso("No se pudo iniciar sesión.", "error"); resetBtn(); return; }
@@ -1032,7 +1050,7 @@ async function pantallaSurvivor(c){
   if(!deadlines || deadlines.length === 0){
     c.innerHTML = `<div class="sv-vacio">Aún no hay jornadas de Survivor configuradas.</div>`; return;
   }
-  const ahora = new Date();
+  const ahora = ahoraSrv();
   SV.jornadasDisponibles = deadlines.map(d => d.jornada);
   SV.deadlinesPorJornada = {};
   deadlines.forEach(d => SV.deadlinesPorJornada[d.jornada] = new Date(d.cierre_survivor));
@@ -1088,14 +1106,14 @@ async function pantallaSurvivor(c){
   SV.pickConsumido = false;
   if(SV.pickActual){
     const pp = SV.partidos.find(x=>x.id === SV.pickActual.partido_id);
-    if(pp && new Date(pp.kickoff) <= new Date()) SV.pickConsumido = true;
+    if(pp && new Date(pp.kickoff) <= ahoraSrv()) SV.pickConsumido = true;
   }
 
   render(c);
 }
 
 function render(c){
-  const cerrada = SV.deadline <= new Date();
+  const cerrada = SV.deadline <= ahoraSrv();
   const t = SV.tickets.find(x=>x.id===SV.ticketSel);
 
   let html = `
@@ -1269,7 +1287,7 @@ async function renderGrupo(){
   // partidos ya cerrados donde nadie eligió van a un listado compacto aparte
   const sinPicks = [];
   SV.partidos.forEach(p=>{
-    const cerrado = new Date(p.kickoff) <= new Date();
+    const cerrado = new Date(p.kickoff) <= ahoraSrv();
     const lista = picksPorPartido[p.id] || [];
     if(cerrado && lista.length === 0){ sinPicks.push(p); return; }
 
@@ -1350,7 +1368,7 @@ function marcadorHTML(p){
 async function jornadaEnCurso(torneoId){
   const { data } = await sb.from("partido").select("jornada")
     .eq("torneo_id", torneoId).lte("jornada", 17).eq("pospuesto", false)
-    .gt("kickoff", new Date().toISOString())
+    .gt("kickoff", ahoraSrv().toISOString())
     .order("jornada", { ascending:true }).limit(1);
   return data?.[0]?.jornada ?? null;
 }
@@ -1384,7 +1402,7 @@ function renderZona(cerrada, t){
   let html = aviso + `<div class="sv-instru">Elige al equipo que crees que <b>gana</b>. No puedes repetir un equipo que ya usaste en este boleto. El empate te cuesta una vida.</div>`;
 
   SV.partidos.forEach(p=>{
-    const arrancado = new Date(p.kickoff) <= new Date();  // partido ya empezó
+    const arrancado = new Date(p.kickoff) <= ahoraSrv();  // partido ya empezó
     const usadoLoc = SV.equiposUsados[p.equipo_local_id] && SV.equiposUsados[p.equipo_local_id] !== SV.jornada;
     const usadoVis = SV.equiposUsados[p.equipo_visitante_id] && SV.equiposUsados[p.equipo_visitante_id] !== SV.jornada;
     const elLoc = SV.eleccion === p.equipo_local_id;
@@ -1495,12 +1513,12 @@ function arrancaReloj(){
   if(relojInt) clearInterval(relojInt);
   relojInt = setInterval(()=>{
     const el = $("sv-cuenta"); if(!el){ clearInterval(relojInt); return; }
-    if(SV.deadline <= new Date()){ el.textContent = "Jornada cerrada"; clearInterval(relojInt); }
+    if(SV.deadline <= ahoraSrv()){ el.textContent = "Jornada cerrada"; clearInterval(relojInt); }
     else el.textContent = textoReloj(SV.deadline);
   }, 1000);
 }
 function textoReloj(fin){
-  const ms = fin - new Date();
+  const ms = fin - ahoraSrv();
   if(ms <= 0) return "Jornada cerrada";
   const d = Math.floor(ms/86400000), h = Math.floor(ms%86400000/3600000),
         m = Math.floor(ms%3600000/60000), s = Math.floor(ms%60000/1000);
@@ -1532,7 +1550,7 @@ function arrancaCountdowns(){
   const tick = ()=>{
     const els = document.querySelectorAll("[data-countdown]");
     if(!els.length){ clearInterval(cdInt); cdInt=null; return; }
-    const ahora = Date.now();
+    const ahora = ahoraSrv().getTime();
     els.forEach(el=>{
       const fin = new Date(el.dataset.countdown).getTime();
       const ms = fin - ahora;
@@ -1833,7 +1851,7 @@ async function adJugadores(){
       const id=b.dataset.id, acc=b.dataset.acc, val = b.dataset.val==='1';
       const campo = acc==='pago' ? 'pagado' : 'bloqueado';
       const upd = { [campo]: !val };
-      if(acc==='pago' && !val) upd.pagado_en = new Date().toISOString();
+      if(acc==='pago' && !val) upd.pagado_en = ahoraSrv().toISOString();
       const { error } = await sb.from("survivor_ticket").update(upd).eq("id", id);
       if(error){ alert("Error: "+error.message); return; }
       adJugadores();
@@ -1978,7 +1996,7 @@ async function pantallaQuiniela(c){
 }
 
 function totalJornadaCerrado(){
-  return QN.cierreJornada ? (new Date(QN.cierreJornada) <= new Date()) : false;
+  return QN.cierreJornada ? (new Date(QN.cierreJornada) <= ahoraSrv()) : false;
 }
 
 function renderQuiniela(c){
@@ -2067,7 +2085,7 @@ function renderQuiniela(c){
 }
 
 function filaPartidoQuiniela(p, bloqueado){
-  const arrancado = new Date(p.kickoff) <= new Date();
+  const arrancado = new Date(p.kickoff) <= ahoraSrv();
   const cerrado = arrancado || p.pospuesto || p.bloqueado_manual;
   const pick = QN.misPicks[p.id] || null;
   const escL = escudoMini(p.loc), escV = escudoMini(p.vis);
@@ -2181,7 +2199,7 @@ async function guardarQuiniela(){
   g.disabled=true; g.textContent="Guardando…"; msg.innerHTML="";
 
   // Solo tocamos partidos NO cerrados; los cerrados la BD los rechaza igual.
-  const ahora = new Date();
+  const ahora = ahoraSrv();
   const abiertos = QN.partidos.filter(p =>
     !(new Date(p.kickoff)<=ahora || p.pospuesto || p.bloqueado_manual));
   const idsAbiertos = abiertos.map(p=>p.id);
@@ -2315,7 +2333,7 @@ function tablaPicksGrupo(filas, ranking){
     const pa = ran[a.usuario_id]?ran[a.usuario_id].pos:9999, pb = ran[b.usuario_id]?ran[b.usuario_id].pos:9999;
     return pa-pb || String(a.nombre).localeCompare(String(b.nombre));
   });
-  const ahora = new Date();
+  const ahora = ahoraSrv();
   let h = `<div class="pg-wrap"><table class="pg-tabla"><thead><tr>
     <th class="pg-nom">Jugador</th><th>Pts</th>`;
   QN.partidos.forEach(p=>{
@@ -2472,7 +2490,7 @@ async function adEstrellas(){
   const nEstrella = parts.filter(p=>p.es_estrella).length;
   let html = `<div class="d" style="margin-bottom:8px">Estrellas marcadas: <b style="color:var(--lima)">${nEstrella}</b></div>`;
   parts.forEach(p=>{
-    const arrancado = new Date(p.kickoff)<=new Date();
+    const arrancado = new Date(p.kickoff)<=ahoraSrv();
     html += `<div class="ad-fila">
       <div class="info">
         <div class="n">${escapa(p.loc?.nombre_corto||p.loc?.nombre||'?')} vs ${escapa(p.vis?.nombre_corto||p.vis?.nombre||'?')}</div>
@@ -2765,7 +2783,7 @@ async function adLiguillaTickets(){
       const id=b.dataset.id, acc=b.dataset.lacc, val=b.dataset.val==='1';
       const campo = acc==='pago' ? 'pagado' : 'bloqueado';
       const upd = { [campo]: !val };
-      if(acc==='pago' && !val) upd.pagado_en = new Date().toISOString();
+      if(acc==='pago' && !val) upd.pagado_en = ahoraSrv().toISOString();
       const { error } = await sb.from("liguilla_ticket").update(upd).eq("id", id);
       if(error){ alert("Error: "+error.message); return; }
       adLiguillaTickets();
@@ -2933,7 +2951,7 @@ function renderLiguilla(c){
   }
 
   saneaPred();
-  const cerrado = LG.deadline && LG.deadline <= new Date();
+  const cerrado = LG.deadline && LG.deadline <= ahoraSrv();
 
   // aviso de cierre / countdown
   if(cerrado){
@@ -3055,7 +3073,7 @@ function renderCapaB(){
   return html;
 }
 function filaCapaB(p, etiqueta){
-  const cerrado = new Date(p.kickoff) <= new Date() || p.pospuesto || p.bloqueado_manual;
+  const cerrado = new Date(p.kickoff) <= ahoraSrv() || p.pospuesto || p.bloqueado_manual;
   const pick = LG.pbSel[p.id] || null;
   let estado = '';
   if(p.pospuesto) estado = `<span class="qn-flag posp">pospuesto</span>`;
@@ -3096,7 +3114,7 @@ async function guardarCapaB(){
   const g = $("lg-guardarB"), msg = $("lg-msgB");
   if(!LG.ticketSel){ msg.innerHTML = `<div class="sv-msg err">Elige un boleto primero.</div>`; return; }
   g.disabled = true; g.textContent = "Guardando…"; msg.innerHTML = "";
-  const ahora = new Date();
+  const ahora = ahoraSrv();
   const abiertos = LG.partidos.filter(p=> !(new Date(p.kickoff)<=ahora || p.pospuesto || p.bloqueado_manual));
   const filas = [];
   abiertos.forEach(p=>{

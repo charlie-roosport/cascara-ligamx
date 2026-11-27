@@ -766,6 +766,18 @@
   .lg-pasos li em{font-style:normal;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;
     color:var(--oro);white-space:nowrap}
   .lg-total{font-size:14px;color:var(--pizarra)}
+  /* bracket congelado: tus picks se siguen leyendo; los demás, apagados */
+  .lg-lado.dis{opacity:.4}
+  .lg-lado.dis.sel{opacity:1;background:rgba(182,255,60,.16);border-color:rgba(182,255,60,.65);color:var(--lima);box-shadow:none}
+  .lg-lado.dis.sel .seed{background:rgba(182,255,60,.18);color:var(--lima)}
+  .lg-lado.lg-ok,.lg-lado.dis.lg-ok{background:var(--lima);border-color:var(--lima);color:#07120A}
+  .lg-lado.lg-ok .seed{background:rgba(7,18,10,.2);color:#07120A}
+  .lg-lado.lg-no,.lg-lado.dis.lg-no{background:rgba(255,90,71,.18);border-color:rgba(255,90,71,.7);color:#FF8A7A}
+  .lg-lado.lg-no .nom{text-decoration:line-through;text-decoration-thickness:2px}
+  .lg-lado.lg-ok::after{content:"✓";margin-left:auto;font-weight:700}
+  .lg-lado.lg-no::after{content:"✗";margin-left:auto;font-weight:700}
+  .ad-res{padding-top:10px;margin-top:10px;border-top:1px dashed var(--linea)}
+  .ad-res-eq{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:16px;min-width:34px;text-align:center}
   /* ---------- movimiento ---------- */
   @keyframes pickPop{0%{transform:scale(1)}35%{transform:scale(.92)}70%{transform:scale(1.06)}100%{transform:scale(1)}}
   .pop{animation:pickPop .3s cubic-bezier(.3,1.4,.5,1)}
@@ -2664,10 +2676,21 @@ async function adLiguilla(){
   let partidosLig = [];
   if(cuartos.length){
     const { data: pl } = await sb.from("partido")
-      .select("id, jornada, kickoff, goles_local, goles_visitante, equipo_local_id, equipo_visitante_id")
+      .select("id, jornada, kickoff, goles_local, goles_visitante, status, equipo_local_id, equipo_visitante_id, "+
+              "loc:equipo_local_id(nombre,nombre_corto), vis:equipo_visitante_id(nombre,nombre_corto)")
       .eq("torneo_id", tor.id).gt("jornada", 17).order("kickoff");
     partidosLig = pl || [];
     html += renderAdCargador(series, partidosLig);
+  }
+
+  // ---- 2.6) RESULTADOS: automático + plan B ----
+  if(cuartos.length){
+    html += `<div class="ad-bloque"><h3>Resultados</h3>
+      <div class="d">Se cargan solos cada 20 minutos desde TheSportsDB y los puntos se calculan al marcar el partido como final.
+      Si tarda o falla: <b>1)</b> usa este botón para traerlos ya, o <b>2)</b> captúralos a mano en cada serie (abajo, "Resultado Ida / Vuelta").</div>
+      <button class="ad-btn" id="lg-traer-res">Traer resultados ahora</button>
+      <div class="ad-log oculto" id="lg-log-res"></div>
+    </div>`;
   }
 
   // ---- 3) BOLETOS DE LIGUILLA (pago/bloqueo) ----
@@ -2733,6 +2756,50 @@ async function adLiguilla(){
     });
   });
 
+  // --- eventos: traer resultados de TheSportsDB (plan B 1) ---
+  const bTraer = $("lg-traer-res");
+  if(bTraer) bTraer.addEventListener("click", async ()=>{
+    const log = $("lg-log-res"); log.classList.remove("oculto");
+    bTraer.disabled = true; log.textContent = "Consultando TheSportsDB…";
+    try{
+      const token = await tokenActual();
+      const r = await fetch(`${SUPABASE_URL}/functions/v1/importar-calendario?modo=liguilla`, {
+        headers:{ "Authorization":`Bearer ${token}`, "apikey":SUPABASE_ANON }
+      });
+      const j = await r.json();
+      if(!j.ok){ log.textContent = "Error: " + (j.err || "desconocido") + "\nUsa la captura manual de cada serie."; bTraer.disabled = false; return; }
+      let t = j.liguilla_actualizados
+        ? `Listo ✓ ${j.liguilla_actualizados} partido(s) actualizados, ${j.liguilla_finales} como final.`
+        : "Sin cambios: TheSportsDB aún no tiene marcadores nuevos.";
+      if(j.errores?.length) t += "\n⚠ " + j.errores.join("\n⚠ ") + "\nSi sigue fallando, captúralo a mano.";
+      if(j.sin_partido?.length) t += "\nNo encontré en la app: " + j.sin_partido.join(", ");
+      if(j.avisos?.length) t += "\nHorarios distintos en la API (la app conserva los tuyos):\n· " + j.avisos.join("\n· ");
+      log.textContent = t;
+      if(j.liguilla_actualizados){ setTimeout(()=>adLiguilla(), 1500); }
+    }catch(e){ log.textContent = "Falló la conexión: " + String(e) + "\nUsa la captura manual."; }
+    bTraer.disabled = false;
+  });
+
+  // --- eventos: capturar marcador final ---
+  cont.querySelectorAll("[data-guarda-res]").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      const pid = btn.dataset.guardaRes;
+      const box = cont.querySelector(`.ad-res[data-res="${pid}"]`);
+      const log = cont.querySelector(`[data-reslog="${pid}"]`);
+      log.classList.remove("oculto");
+      const gl = box.querySelector("[data-gl]").value.trim(), gv = box.querySelector("[data-gv]").value.trim();
+      const ok = v => /^\d{1,2}$/.test(v) && parseInt(v) <= 30;
+      if(!ok(gl) || !ok(gv)){ log.textContent = "Pon los goles de los dos equipos (números enteros)."; return; }
+      const eqs = box.querySelectorAll(".ad-res-eq");
+      if(!confirm(`¿Marcador final ${eqs[0].textContent} ${gl} – ${gv} ${eqs[1].textContent}? Con esto se calculan los puntos.`)) return;
+      btn.disabled = true; log.textContent = "Guardando…";
+      const { error } = await sb.from("partido")
+        .update({ goles_local: parseInt(gl), goles_visitante: parseInt(gv), status: "FT" }).eq("id", pid);
+      if(error){ log.textContent = "Error: " + error.message; btn.disabled = false; return; }
+      adLiguilla();
+    });
+  });
+
   adLiguillaTickets();
 }
 
@@ -2762,12 +2829,33 @@ function renderAdCargador(series, partidos){
           ? `<div class="ad-log">Ya hay resultados en esta serie; los horarios quedan fijos.</div>`
           : `<button class="ad-btn" data-carg="${s.id}" style="margin-top:6px">${legs.length?'Actualizar horarios':'Crear partidos'}</button>`}
         <div class="ad-log oculto" data-carglog="${s.id}"></div>
+        ${legs.map((p,i)=> adFilaResultado(p, i===0?'Ida':'Vuelta')).join('')}
       </div>`;
     });
   });
   if(!algo) html += `<div class="d">Aún no hay series con ambos equipos definidos. Marca avances arriba para que se definan.</div>`;
   html += `</div>`;
   return html;
+}
+
+// fila admin: marcador final de un partido de liguilla (solo si ya arrancó)
+function adFilaResultado(p, etiqueta){
+  if(new Date(p.kickoff) > ahoraSrv()) return '';
+  const ln = escapa(p.loc?.nombre_corto || p.loc?.nombre || 'Local');
+  const vn = escapa(p.vis?.nombre_corto || p.vis?.nombre || 'Visita');
+  const fin = p.status === 'FT' && p.goles_local != null && p.goles_visitante != null;
+  return `<div class="ad-res" data-res="${p.id}">
+    <div class="ad-carg-tit">Resultado ${etiqueta} ${fin?'<span style="color:var(--lima)">· final ✓</span>':''}</div>
+    <div class="ad-row">
+      <span class="ad-res-eq">${ln}</span>
+      <input class="ad-inp" type="number" min="0" max="30" inputmode="numeric" data-gl value="${p.goles_local??''}" style="width:58px">
+      <span style="color:var(--pizarra)">–</span>
+      <input class="ad-inp" type="number" min="0" max="30" inputmode="numeric" data-gv value="${p.goles_visitante??''}" style="width:58px">
+      <span class="ad-res-eq">${vn}</span>
+      <button class="ad-btn" data-guarda-res="${p.id}">${fin?'Corregir':'Guardar final'}</button>
+    </div>
+    <div class="ad-log oculto" data-reslog="${p.id}"></div>
+  </div>`;
 }
 
 async function adLiguillaTickets(){
@@ -2835,7 +2923,7 @@ async function pantallaLiguilla(c){
   const cuartos = LG.series.cuartos || [];
   {
     const { data: pl } = await sb.from("partido")
-      .select("id, jornada, kickoff, pospuesto, bloqueado_manual, goles_local, goles_visitante, "+
+      .select("id, jornada, kickoff, pospuesto, bloqueado_manual, goles_local, goles_visitante, status, "+
               "equipo_local_id, equipo_visitante_id, "+
               "loc:equipo_local_id(nombre,nombre_corto,escudo_url,color), "+
               "vis:equipo_visitante_id(nombre,nombre_corto,escudo_url,color)")
@@ -2904,8 +2992,24 @@ function saneaPred(){
   if(LG.pred.campeon && LG.pred.campeon!==f1 && LG.pred.campeon!==f2) LG.pred.campeon = null;
 }
 
-function lgLado(eq, seed, sel, dis, attrs){
-  return `<div class="lg-lado ${sel?'sel':''} ${dis?'dis':''}" ${attrs||''}>
+// estado real de MI pick: 'lg-ok' (acertó), 'lg-no' (falló) o '' (aún no se sabe)
+function lgEstadoPick(eqId, tipo, serie){
+  if(!eqId || !LG.series) return '';
+  const todas = [...(LG.series.cuartos||[]), ...(LG.series.semis||[]), ...(LG.series.final||[])];
+  const elim = new Set();
+  todas.forEach(x=>{ if(x.equipo_avanza_id){ const p = x.equipo_avanza_id===x.equipo_a_id ? x.equipo_b_id : x.equipo_a_id; if(p) elim.add(p); } });
+  const gan = r => new Set((LG.series[r]||[]).map(x=>x.equipo_avanza_id).filter(Boolean));
+  if(tipo==='cuartos'){
+    if(!serie || !serie.equipo_avanza_id) return '';
+    return serie.equipo_avanza_id===eqId ? 'lg-ok' : 'lg-no';
+  }
+  if(tipo==='semis'){ if(gan('semis').has(eqId)) return 'lg-ok'; return elim.has(eqId) ? 'lg-no' : ''; }
+  if(tipo==='final'){ if(gan('final').has(eqId)) return 'lg-ok'; return elim.has(eqId) ? 'lg-no' : ''; }
+  return '';
+}
+
+function lgLado(eq, seed, sel, dis, attrs, estado){
+  return `<div class="lg-lado ${sel?'sel':''} ${dis?'dis':''} ${sel&&estado?estado:''}" ${attrs||''}>
     <span class="seed">${seed??'?'}</span>${escudoMini(eq)}<span class="nom">${escapa(eq?.nombre_corto||eq?.nombre||'?')}</span>
   </div>`;
 }
@@ -2986,9 +3090,9 @@ function renderLiguilla(c){
     const selA = LG.pred.cuartos[s.slot]===s.equipo_a_id, selB = LG.pred.cuartos[s.slot]===s.equipo_b_id;
     html += `<div class="lg-serie">
       <div class="lg-lados">
-        ${lgLado(s.ea, s.seed_a, selA, cerrado, `data-cua="${s.slot}" data-eq="${s.equipo_a_id}"`)}
+        ${lgLado(s.ea, s.seed_a, selA, cerrado, `data-cua="${s.slot}" data-eq="${s.equipo_a_id}"`, lgEstadoPick(s.equipo_a_id,'cuartos',s))}
         <div class="lg-vs">vs</div>
-        ${lgLado(s.eb, s.seed_b, selB, cerrado, `data-cua="${s.slot}" data-eq="${s.equipo_b_id}"`)}
+        ${lgLado(s.eb, s.seed_b, selB, cerrado, `data-cua="${s.slot}" data-eq="${s.equipo_b_id}"`, lgEstadoPick(s.equipo_b_id,'cuartos',s))}
       </div>
     </div>`;
   });
@@ -3004,9 +3108,9 @@ function renderLiguilla(c){
       const selA = LG.pred.semis[s.dslot]===s.a.equipo_id, selB = LG.pred.semis[s.dslot]===s.b.equipo_id;
       html += `<div class="lg-serie">
         <div class="lg-lados">
-          ${lgLado(s.a.eq, s.a.seed, selA, cerrado, `data-sem="${s.dslot}" data-eq="${s.a.equipo_id}"`)}
+          ${lgLado(s.a.eq, s.a.seed, selA, cerrado, `data-sem="${s.dslot}" data-eq="${s.a.equipo_id}"`, lgEstadoPick(s.a.equipo_id,'semis'))}
           <div class="lg-vs">vs</div>
-          ${lgLado(s.b.eq, s.b.seed, selB, cerrado, `data-sem="${s.dslot}" data-eq="${s.b.equipo_id}"`)}
+          ${lgLado(s.b.eq, s.b.seed, selB, cerrado, `data-sem="${s.dslot}" data-eq="${s.b.equipo_id}"`, lgEstadoPick(s.b.equipo_id,'semis'))}
         </div>
       </div>`;
     });
@@ -3025,9 +3129,9 @@ function renderLiguilla(c){
     const selA = LG.pred.campeon===fa.equipo_id, selB = LG.pred.campeon===fb.equipo_id;
     html += `<div class="lg-campeon"><div class="clbl">★ Campeón</div>
       <div class="lg-lados">
-        ${lgLado(fa.eq, fa.seed, selA, cerrado, `data-camp="1" data-eq="${fa.equipo_id}"`)}
+        ${lgLado(fa.eq, fa.seed, selA, cerrado, `data-camp="1" data-eq="${fa.equipo_id}"`, lgEstadoPick(fa.equipo_id,'final'))}
         <div class="lg-vs">vs</div>
-        ${lgLado(fb.eq, fb.seed, selB, cerrado, `data-camp="1" data-eq="${fb.equipo_id}"`)}
+        ${lgLado(fb.eq, fb.seed, selB, cerrado, `data-camp="1" data-eq="${fb.equipo_id}"`, lgEstadoPick(fb.equipo_id,'final'))}
       </div></div>`;
   }
   html += `</div>`;
@@ -3096,10 +3200,17 @@ function filaCapaB(p, etiqueta){
   let estado = '';
   if(p.pospuesto) estado = `<span class="qn-flag posp">pospuesto</span>`;
   else if(p.bloqueado_manual) estado = `<span class="qn-flag posp">bloqueado</span>`;
+  const res = resultadoLEV(p);
+  const finalizado = p.status === 'FT';
   let botones = '';
   ['L','E','V'].forEach(op=>{
     const sel = pick===op;
-    botones += `<button class="qn-lev ${sel?'sel':''}" data-levb="${op}" data-part="${p.id}" ${cerrado?'disabled':''}>${op}</button>`;
+    let cls = sel ? 'sel' : '';
+    if(finalizado && res){
+      if(sel) cls = (op===res) ? 'acerto' : 'fallo';
+      else if(op===res) cls = 'real';
+    }
+    botones += `<button class="qn-lev ${cls}" data-levb="${op}" data-part="${p.id}" ${cerrado?'disabled':''}>${op}</button>`;
   });
   return `
   <div class="qn-partido ${cerrado?'cerrado':''}">
@@ -3113,6 +3224,7 @@ function filaCapaB(p, etiqueta){
       <div class="qn-lev-box">${botones}</div>
       <div class="qn-eq">${escudoMini(p.vis)}<span>${escapa(p.vis?.nombre_corto||p.vis?.nombre||'?')}</span></div>
     </div>
+    ${marcadorHTML(p)}
   </div>`;
 }
 function conectarCapaB(c){
